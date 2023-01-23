@@ -1,0 +1,287 @@
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[chapter]{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{listings}
+\usepackage{afterpage}
+\usepackage{fancyvrb}
+\usepackage{color}
+
+\newcommand{\ignore}[1]{}
+%\newcommand{\todo}[1]{\textcolor{red}{#1}}
+\newcommand{\todo}[1]{}
+
+
+\title{Big Data}
+
+\begin{document}
+\maketitle
+
+\section{Introduzione}
+Il termine Big Data ha diverse definizioni. Una può essere: "dati la cui dimensione, diversità e varietà richiede nuove architetture, tecniche, algoritmi e analisi per gestirli e estrarne valori/significati". I Big Data vengono identificati da tre \textit{V}:
+\begin{itemize}
+    \item Volume, ovvero la quantità dei dati;
+    \item Varietà, ovvero il tipo di dato;
+    \item Velocità, ovvero la velocità con cui vengono generati i dati.
+\end{itemize}
+A queste se ne sono aggiunte nel tempo altre due:
+\begin{itemize}
+    \item Valore, ovvero che i dati contengano info che mi interessa estrarre;
+    \item Veridicità, ovvero che la fonte dei dati sia verificabile.
+\end{itemize}
+
+\paragraph{Sfide nel gestire i big data} Le architetture tradizionali (supercomputer o sistemi paralleli fino a 10 anni fa) non sono adatte a gestire questi dati, in quanto non esiste 
+
+\noindent Dal punto di vista architetturale, utilizzare supercomputer paralleli (in numero limitato essendo costosi) non sono adatta alla gran parte dei problemi, in quanto ogni macchina gestiva un sottoinsieme dei dati in modo isolato. Inoltre, ad esempio, raddoppiare la potenza di calcolo portava ad un aumento esponenziale del costo del supercomputer.
+
+La computazione parallela è possibile, ma è estremamente complessa (deadlock, memoria condivisa, ...). 
+
+Queste tecniche non possono essere adottate quando i dati sono eterogenei (e si possono aggiungere nuovi tipi nel tempo) e la quantità da gestire è elevata e soprattutto frequente (mi servono sistemi veloci). 
+
+Idee principali:
+\begin{itemize}
+    \item Nel caso dei supercomputer, si è partiti da una scalabilità verticale, ovvero cercando di aumentare le risorse di calcolo nella macchina (cpu più potenti), passando poi ad una scalabilità orizzontale (piuttosto che potenziare la mia macchina, utilizzo quelle presenti nel mercato in numero sufficiente alla mia situazione) quando l'aumento non era più possibile, gestendo poi la comunicazione tra queste macchine;
+    \item Assumere che i guasti (failures) siano all'ordine del giorno e quindi creare un sistema robusto ai guasti;
+    \item Spostare il processing  e non i dati (distribuisco il codice dell'elaborazione su ogni macchina che gestisce i dati che poi lo esegue);
+    \item Non è possibile eseguire una ricerca puntuale (tipo query su database). uso un approccio di tipo batch per l'analisi dei dati.
+    \item Nascondere la complessità del parallelismo mostrando al programmatore interfacce semplici.
+\end{itemize}
+
+Questo tipo di sistemi è adatto per risolvere i problemi definiti come "problemi facilmente parallelizzabili", ovvero divisibili in computazioni indipendenti su frammenti del dataset. Le analisi sono tipicamente sequenziali sui dati, eseguite più volte.
+
+L'approccio di parallelizzazione (divido i dati tra più macchine, ciascuna esegue l'analisi e poi unisco i risultati) introduce una serie di problematiche:
+\begin{itemize}
+    \item Come divido il lavoro tra le macchine (ho 1000 macchine ma me ne bastano 100 per il cluster, come le scelgo?);
+    \item Come faccio a far comunicare le macchine per unire il risultato finale?
+    \item Come faccio a sapere che è il momento di unire i risultati parziali?
+    \item Come gestisco il caso in cui una delle macchine si guasta e non ricevo il suo risultato parziale?
+\end{itemize}
+
+Il sistema distribuito deve gestire quindi la data distribution (come distribuire i data tra le macchine), quali macchine eseguono le analisi (un cluster di macchine viene usata da più utenti differenti, non solo da uno per volta), i guasti e lo scheduling per servire i vari utenti. L'idea è che tutte queste problematiche vengano nascoste al programmatore, il quale dovrà solo specificare che tipo di informazioni estrarre, il come è lasciato al sistema.
+
+\subsection{MapReduce}
+MapReduce è un:
+\begin{itemize}
+    \item Modello di programmazione ispirato dalla programmazione funzionale che permette di esprimere computazioni distribuite su grandi quantità di dati;
+    \item Framework disegnato per l'elaborazione di dati su larga scala e per essere runnato su cluster basati su hardware normale.
+\end{itemize}
+
+Supponiamo di dover contare quante volte si ripetono le parole presenti all'interno di una serie di pagine web. L'analisi sarà divisa in due parti:
+\begin{itemize}
+    \item Mapping: divido i dati tra le varie stazioni, che eseguono il conteggio delle parole sulle pagine ricevute;
+    \item Reduce: unisco i conteggi intermedi ricevuti da ogni stazione per ottenere un risultato finale unico.
+\end{itemize}
+
+A livello di pseudo-codice, i metodi Mapper e Reducer possono essere scritti così:
+
+IMMAGINE
+
+Per sua struttura, il Mapper prende in input la coppia \textit{(chiave, valore)}: la chiave rappresenta l'id del documento, mentre il valore il documento stesso. 
+
+\subsubsection{Modello di programmazione} MapReduce non è nulla di nuovo, è semplicemente un sottoinsieme dell'approccio detto "programmazione funzionale". 
+Nella programmazione funzionale esiste una funzione Map che viene applicata ad ogni tupla della collezione e una fase di Reduce applicata ad una collezione omogenea di valori per ottenere il risultato finale. 
+
+Gli oggetti a cui Map applica la funzione sono indipendenti e il loro ordine non è importante.
+Non è possibile risolvere tutti i problemi esistenti con l'approccio MapReduce, ma è comunque possibile coprire molti casi di interesse. 
+
+\paragraph*{Obiettivo} Creare algoritmi con questo modello di programmazione, concentrandosi su come trasformare un problema e i suoi input e come salvare memoria (RAM) e banda nel sistema. 
+
+\paragraph*{Strutture dati} La struttura dati base usata nel MapReduce è la coppia \textit{(chiave, valore)}. Entrambi i parametri possono essere interi, float, stringhe, byte o altre strutture dati.
+\\
+
+\noindent Da un punto di vista formale, map e reduce possono essere visti come due funzioni:
+\begin{align*}
+    map:& (k1, v1) \rightarrow [(k2, v2)]\\
+    reduce:& (k2, [v2]) \rightarrow [(k3, v3)]
+\end{align*}
+
+Le [ ] indicano collezioni di valori. Un job del MapReducer consiste di:
+\begin{itemize}
+    \item Un dataset, salvato in un filesystem distribuito sottostante (es: HDFS), che è diviso in una serie di blocchi tra le varie macchine;
+    \item Il mapper, applicato ad ogni input chiave-valore per generare altre coppie chiave-valore intermedie;
+    \item Il reducer, applicato a tutti i valori intermedi associati alla stessa chiave intermedia.
+\end{itemize}
+
+Tra map e reduce esiste, implicitamente (non mostrata al programmatore), un'operazione distribuita di \textit{group by} sulle chiavi intermedie. Tornando all'esempio del conteggio delle parole, il mapping, in ogni macchina, produce una serie di coppie \textit{(parole, 1)}, ovvero crea una nuova entry per ogni parole che incontra e le assegna il conteggio di 1, a prescindere che l'abbia già contata. A questo punto il sistema esegue l'operazione di group by ridistribuendo i conteggi intermedi tra le varie macchine (es: la macchina1 sommerà i counter delle parole 1 e 3, la macchina 2 delle parole 5 e 6, ...). 
+Il risultato del reducer viene scritto sul filesystem (es: HDFS) in modo distribuito (essendo il filesystem distribuito). Spesso per elaborazioni complesse si esegue il MapReduce più volte, dove l'output della fase precedente diventa l'input della fase successiva. Tutte le chiavi intermedia rimangono nel sistema fino a quando l'output finale non viene scritto, in modo da non dover ricominciare da campo in caso di guasti. 
+
+IMMAGINE
+
+\subsection{Hadoop MapReduce - tipi e formati}
+
+-----------------------------------------------------------------------------
+
+\section{MapReduce}
+L'unico approccio praticabile per affrontare i problemi dei big data oggi è quello di \textit{divide e conquere}. L'idea di base è quella di dividere un problema di grande dimensioni in sotto-problemi indipendenti tra loro, che possono essere parallelizzati in diverse macchine. I risultati intermedi prodotti dalle varie macchine vengono poi uniti per ottenere l'output finale. L'utilizzo di questo approccio richiede però di affrontare una serie di problemi:
+\begin{itemize}
+    \item Come possiamo suddividere un grande problema in compiti più piccoli? Più specificamente, come possiamo scomporre il problema in modo che le attività più piccole possano essere eseguite in parallelo?
+    \item Come possiamo assegnare compiti ai lavoratori distribuiti su un numero potenzialmente elevato di macchine (tenendo presente che alcuni lavoratori sono più adatti a eseguire alcune attività rispetto ad altre, ad esempio, a causa delle risorse disponibili, dei vincoli di località, ecc.)?
+    \item Come coordiniamo la sincronizzazione tra i diversi lavoratori?
+    \item Come possiamo condividere i risultati parziali di un lavoratore che sono necessari per un altro?
+    \item Come possiamo realizzare tutto quanto sopra di fronte a errori software e guasti hardware?
+\end{itemize}
+
+\noindent Un sistema parallelo deve quindi fornire una distribuzione dei dati e delle computazioni, una gestione dei guasti e un sistema di scheduling per i vari job. Uno dei vantaggi più significativi di MapReduce è che fornisce un'astrazione che nasconde molti dettagli a livello di sistema al programmatore. Pertanto, egli può concentrarsi su quali calcoli devono essere eseguiti ignorando come tali calcoli vengono eseguiti. 
+
+L'elaborazione di dati di grandi dimensioni richiede, per definizione, anche l'unione di dati e codice per il calcolo, operazione molto complessa con dataset di dimensioni pari a terabyte e petabyte. MapReduce affronta questa sfida fornendo una semplice astrazione per lo sviluppatore, gestendo in modo trasparente la maggior parte dei dettagli dietro le quinte in modo scalabile, robusto ed efficiente. Invece di spostare grandi quantità di dati, è molto più efficiente, se possibile, spostare il codice nei dati. Questo si realizza nella pratica distribuendo i dati tra i dischi locali dei nodi in un cluster ed eseguendo processi sui nodi che contengono i dati. Il compito di gestire l'archiviazione in un tale ambiente di elaborazione è in genere gestito da un file system distribuito che si trova sotto MapReduce.\\
+
+\noindent MapReduce ha le sue radici nella programmazione funzionale. In generale, MapReduce codifica una "ricetta" generica per l'elaborazione di grandi dataset che consiste di due fasi:
+\begin{enumerate}
+    \item Applica una funzione specificata dall'utente a tutti i record del dataset. Le computazioni avvengono in parallelo e producono un risultato intermedio;
+    \item I risultati intermedi vengono aggregato tramite un'altra funzione specificata dall'utente.
+\end{enumerate}
+
+\noindent Per essere precisi, il termine MapReduce può riferirsi al:
+\begin{itemize}
+    \item Modello di programmazione discusso sopra;
+    \item Framework di esecuzione che coordina l'esecuzione dei programmi scritti in questo particolare stile;
+    \item Implementazione software del modello di programamzione e del framework di esecuzione, come l'implementazione proprietaria di Google o l'implementazione open-source in Java di Hadoop.
+\end{itemize}
+
+\subsection{Mapper e Reducer}
+La struttura dati base usata in MapReduce è la coppia chiave-valore. Entrambi i parametri possono essere interi, float, stringhe, byte o altre strutture dati definite dall'utente. Quindi parte del design di algoritmi MapReduce riguarda la scelta di queste coppie rispetto al dataset. Ad esempio, per una collezione di pagine web, la chiave può essere l'URL mentre il valore il codice HTML. In base al caso, le chiavi potrebbero non essere particolarmente significative e semplicemente ignorate durante l'elaborazione. 
+
+Da un punto di vista formale, mapper e reducer possono essere visti come due funzioni:
+\begin{align*}
+    map:& (k1, v1) \rightarrow [(k2, v2)]\\
+    reduce:& (k2, [v2]) \rightarrow [(k3, v3)]
+\end{align*}
+
+\noindent dove \textit{[...]} denota una lista. L'input iniziale di un job MapReduce corrisponde ai dati memorizzati nel distributed file system sottostante. Il mapper viene applicato ad ogni coppia chiave-valore, distribuita tra un numero arbitrario di file, e produce un numero arbitrario di coppie chiave-valore intermedie. Il reducer viene applicato a tutti i valori associati alla stessa chiave intermedia per generare le coppie chiave-valore finali. 
+
+Tra le fasi di map e reduce esiste una fase \textit{group by} implicita sulle chiavi intermedie, il cui scopo è ridistribuire la stessa chiave allo stesso reducer.
+
+Le coppie finali di ogni reducer vengono riscritte in modo persistente nel file system distribuito, a differenza di quelle intermedie, che sono transienti. L'output viene riportato in un numero di file pari al numero di reducer. Non sempre è necessario consolidare i file prodotti, in quanto vengono spesso usati come input per un successivo jop MapReduce. 
+
+\subsubsection{Algoritmo di word count}
+
+\begin{algorithm}[t]
+\caption{Word count}
+
+The mapper emits an intermediate key-value pair for each word in an
+input document. The reducer sums up all counts for each word.
+\begin{small}
+\begin{Verbatim}[numbers=left, xleftmargin=7.5mm]
+class Mapper {
+  def map(key: Long, value: Text) = {
+    for (word <- tokenize(value)) {
+      emit(word, 1)
+  }
+}
+class Reducer {
+  def reduce(key: Text, values: Iterable[Int]) = {
+    for (value <- values) {
+      sum += value
+    }
+    emit(key, sum)
+  }
+}
+\end{Verbatim}
+\end{small}
+\end{algorithm}
+
+L'algoritmo mostrato conta il numero di occorrenze di ogni parola in una collezione di testi. L'input passato al mapper è la coppia \textit{(docid, doc)}, memorizzata nel file system distribuito, dove il primo è un identificatore univoco del documento, mentre il secondo è il testo del documento stesso. A partire dalla coppia di input, il mapper produce una coppia \textit{(parola, 1)}, indicando che abbiamo visto quella parola. Il framework garantisce che tutti gli $1$ associati alla stessa parola vengano passati ed elaborati dallo stesso reducer.
+In questo algoritmo, quindi, il reducer si limita a sommare tutti gli $1$ associati alla stessa parola ed emette, come risultato, la coppia finale chiave-valore, dove la chiave è la parola e il valore la somma di tutti gli $1$ associati. L'output è infine scritto sul file system distribuito, un file per reducer. Le parole all'interno di ogni file saranno ordinate in ordine alfabetico, e ogni file conterrà all'incirca lo stesso numero di parole.
+
+Questo pseudocodice rispecchia approssimativamente il modo in cui i programmi MapReduce sono scritti in Hadoop. I mapper e i reducer sono oggetti che implementano rispettivamente i metodi Map e Reduce. 
+In Hadoop, un oggetto mapper viene inizializzato per ogni task di map (associata a una particolare sequenza di coppie chiave-valore) e il metodo Map viene chiamato su ogni coppia chiave-valore dal framework di esecuzione. Sebbene il programmatore possa fornire un suggerimento sul numero di task di map eseguire, sarà il framework a deciderne il numero in base alla struttura fisica dei dati. Similmente, un oggetto reduce viene inizializzato per ogni attività di reduce e il metodo Reduce viene chiamato una volta per chiave intermedia. Diversamente dal map, il programmatore può specificare il numero di task di reduce. 
+
+In generale, i mapper possono emettere un numero arbitrario di coppie chiave-valore intermedie e non è necessario che siano dello stesso tipo delle coppie chiave-valore di input. Allo stesso modo, i reducer possono emettere un numero arbitrario di coppie chiave-valore finali e possono differire nel tipo dalle coppie chiave-valore intermedie. Sebbene non consentiti nella programmazione funzionale, mapper e reducer possono avere effetti collaterali.
+
+Oltre al flow "canonico" di MapReduce, sono possibili delle variazioni. Ad esempio, un programma potrebbe non contenere alcun reducer, con l'output del mapper scritto direttamente sul file system distribuito (un file per mapper, come sempre). Al contrario, sebbene un programma senza mapper non è possibile, è possibile implementare la funzione di identità nel mapper e passare direttamente le coppie chiave-valore di input ai riduttori (riordinando e raggruppando gli input prima di passarli ai rispettivi reducer). Similmente, a volte è utile far implementare la funzione di identità al reducer, caso in cui il programma semplicemente riordina e raggruppa i risultati intermedi dei mapper. Infine, è possibile 3far implementare la funzione identità sia al mapper che al reducer, ottenendo un riordino e raggruppamento degli input iniziali.
+
+\subsection{Hadoop Distributed File System}
+All'aumentare delle dimensioni dei dati, diventa necessario aumentare le capacità di calcolo necessarie all'elaborazione e, di conseguenza, il collegamento tra nodi di calcolo e storage, per evitare che questo diventi un collo di bottiglia, investendo in reti più performanti (10 gigabit Ethernet) o interconnessioni speciali, entrambe molto costose, con il prezzo che non scala linearmente con l'aumento di prestazioni. L'altra opzione possibile è partizionare il dataset su più macchine. I filesystem che gestiscono l'archiviazione attraverso una rete di macchine sono chiamati filesystem distribuiti. Dal momento che sono basati sulla rete, tutte le complicazioni della programmazione di rete entrano in gioco (es: tolleranza ai guasti), rendendo così i filesystem distribuiti più complessi dei normali filesystem su disco. Questa è, ad esempio, la soluzione che MapReduce adotta con HDFS. 
+
+HDFS riprende i lavori esistenti adattandoli all'elaborazione di grandi carichi di dati:
+\begin{itemize}
+    \item File di grandi dimensioni: HDFS è costruito per poter lavorare con file grandi centinaia di MB, GB o TB;
+    \item Accesso ai dati in streaming: 
+    \item Hardware di mercato: HDFS è costruito per essere eseguito su cluster di macchine che usano hardware di base (disponibile da più venditori) per cui la possibilità di errore di un nodo è alta, almeno per i cluster di grandi dimensioni.
+\end{itemize}
+
+\subsubsection{Blocchi}
+
+Il blocco è la dimensione minima di dati che un disco può leggere o scrivere. Come i file system a disco singolo, anche HDFS divide i file in blocchi e li memorizza come unità indipendenti. Diversamente dai primi però, se il file ha una dimensione inferiore a quelal del blocco, non occuperà l'intero blocco della memoria sottostante. 
+
+HDFS, inoltre, implementa blocchi di dimensioni nettamente superiori (64MB o 128MB) a quelli dei file system a disco singolo. Il motivo è ridurre al minimo il costo delle ricerche (rispetto al tempo di trasferimento). Se il blocco è abbastanza grande, il tempo necessario per trasferire i dati dal disco può essere significativamente maggiore del tempo necessario a cercare l'inizio del blocco. Pertanto, il trasferimento di un file di grandi dimensioni composto da più blocchi opera alla velocità di trasferimento del disco. Se il tempo di ricerca è di circa 10 ms e la velocità di trasferimento è di 100 MB/s, per rendere il tempo di ricerca 1\% del tempo di trasferimento, è necessari a rendere la dimensione del blocco circa 100 MB.
+
+Implementare il concetto di blocco porta una serie di vantaggi:
+\begin{itemize}
+    \item Un file potrebbe richiedere più dischi per essere memorizzato. Non c'è alcun vincolo che richieda che i blocchi di uno stesso file siano memorizzati sullo stesso disco, è quindi è possibile sfruttare qualsiasi disco nel cluster;
+    \item I blocchi si adattano bene alla replica per fornire tolleranza agli errori e disponibilità.  Per assicurarsi contro blocchi danneggiati e guasti del disco e della macchina, ogni blocco viene replicato su un piccolo numero di macchine fisicamente separate (in genere tre). Se un blocco diventa non disponibile, una copia può essere letta da un'altra posizione in modo trasparente per il client. Un blocco che non è più disponibile a causa di danneggiamento o guasto della macchina può essere replicato dalle sue posizioni alternative ad altre macchine attive per riportare il fattore di replica al livello normale.  Allo stesso modo, alcune applicazioni possono scegliere di impostare un fattore di replica elevato per i blocchi di un file popolare per distribuire il carico di lettura sul cluster.
+\end{itemize}
+
+\subsubsection{Namenode e Datanode}
+
+Un cluster HDFS ha due tipi di nodi che operano in un modello master-worker: un namenode (il master) e un numero di datanode (workers). 
+
+Il namenode gestisce lo spazio dei nomi del filesystem. Mantiene l'albero del filesystem ei metadati per tutti i file e le directory nell'albero. Queste informazioni vengono memorizzate in modo permanente sul disco locale sotto forma di due file: l'immagine dello spazio dei nomi e il registro delle modifiche. Il namenode conosce anche i datanode su cui si trovano tutti i blocchi per un dato file; tuttavia, non memorizza le posizioni dei blocchi in modo persistente, poiché queste informazioni vengono ricostruite dai datanode all'avvio del sistema. 
+
+I datanode memorizzano e recuperano i blocchi quando richiesto (dai client o dal namenode) e riferiscono periodicamente al namenode le liste di blocchi che stanno archiviando. Quando un client applicativo che desidera leggere un file (o parte di esso) deve prima contattare il namenode per determinare dove sono memorizzati i dati effettivi. In risposta alla richiesta del client, il namenode restituisce l'ID del blocco pertinente e la posizione in cui è tenuto il blocco (cioè in quale datanode). Il client contatta quindi il datanode per recuperare i dati. 
+
+Senza il namenode, quindi, il filesystem non può essere utilizzato in quanto tutti i file sul file system andrebbero persi poiché non ci sarebbe modo di sapere come ricostruire i file dai blocchi sui datanode. Hadoop fornisce due meccanismi per  il namenode resiliente al fallimento:
+\begin{itemize}
+    \item Eseguire il backup dei file che costituiscono lo stato persistente dei metadati del filesystem. Hadoop può essere configurato in modo che il namenode scriva il suo stato persistente su più filesystem. Queste scritture sono sincrone e atomiche e sono di norma effettuate su NFS (Network File System);
+    \item Eseguire un namenode secondario, che unisce periodicamente il namespace con il log delle modifiche per evitare il log diventi troppo grande. Mantiene una copia dell'immagine dello spazio dei nomi unita, che può essere utilizzata in caso di errore del namenode. Tuttavia, lo stato del namenode secondario è in ritardo rispetto a quello del primario, quindi in caso di guasto totale del primario, la perdita di dati è quasi certa. La normale procedura in questo caso è copiare i file di metadati del namenode che si trovano su NFS (Network File System) sul secondario ed eseguirlo come nuovo primario.
+\end{itemize}
+
+\subsubsection{Lettura di una lettura di file}
+Nel caso della lettura di un file, l'interrogazione del namenode serve per ottenere quali sono i nodi fisici che tengono in memoria i blocchi del file. Se l'informazione è richiesta da un nodo esterno al cluster che ha effettuato l'elaborazione, il namenode ritorna una lista di datanode che ne mantengono una copia; se invece è richiesta da un nodo locale per l'elaborazione, il namenode ritorna il datanode locale.\\
+
+\noindent Un aspetto importante di questa progettazione è che il client contatta direttamente i datanode per recuperare i dati ed è guidato dal namenode al miglior datanode per ogni blocco. Questo design consente a HDFS di scalare su un numero elevato di client simultanei perché il traffico di dati è distribuito su tutti i datanode nel cluster. Nel frattempo, il namenode deve semplicemente soddisfare le richieste di posizione dei blocchi del file (che mantiene in RAM, per essere efficiente) e, ad esempio, non serve i dati, che diventerebbero rapidamente un collo di bottiglia con l'aumento del numero di client.
+
+\paragraph{Topologia della rete con Hadoop} Nell'elaborazione di gradni volumi di dati, il rateo di trasferimento di dati tera i nome (larghezza di banda) rappresenta un grande problema. L'idea sarebbe di utilizzare la banda come unità di misura per la distanza tra due nodi, ma poichè è difficile da misurare in pratica, Hadoop semplicemente rappresentala rete come un albera e calcola la distanza tra due nodi come coem la somma delle loro distanza dal più vicino antenato comune. I livelli nell'albero non sono definiti, ma è comune avere livelli che corrispondono al data ceter, al rack e al nodo che sta eseguendo ilprocesso. L'idea è che la banda disponibile per i seguenti scenari diventa semrpe meno:
+\begin{itemize}
+    \item Processi nello stesso nodo;
+    \item Nodi diversi nello stesso rack;
+    \item Nodi in rack diversi nello stesso data center;
+    \item nodi in diversi data center
+\end{itemize}
+
+\noindent Seguendo questa idea, le distanze per i quattro scenari descritti possono essere:
+\begin{itemize}
+    \item 0 per i processi nello stesso nodo;
+    \item 2 per nodi nello stesso rack;
+    \item 4 per nodi in rack differenti;
+    \item 6 per nodi in diversi data center.
+\end{itemize}
+
+\noindent Hadoop non è in grado di scoprire magicamente la topologia della rete, ma è necessario configurarlo. Di default assume che la rete è piatta, ovvero che tutti i nodi si trovano in un singolo rack in un singolo data center.
+
+\subsubsection{Anatomia di una scrittura di un file}
+
+
+\subsubsection{Modello di coerenza}
+Un modello di coerenza per un file system descrive la visibilità di letture e scritture per un file. HDFS adotta un trade-off tra i requisiti POSIX e le prestazioni, quindi alcune operazioni potrebbero comportarsi in modo diverso da come ci si aspetta.
+
+Dopo avere creato in file, questo è visibile nel namespace del file system. Diversamente, non è garantito che ogni contenuto scritto in un file sia visibile, sebbene lo stream sia stato flushato. Quindi il nuovo file potrebbe apparire con dimensione 0. Una volta che è stato scritto più di un blocco di dati, il primo blocco sarà visibile ai nuovi lettori. Questo vale anche per i blocchi successivi: è sempre il blocco corrente in fase di scrittura a non essere visibile. 
+
+HDFS fornisce un modo per forzare lo svuotamento di tutti i buffer nei datanode tramite il metodo \textbf{hflush( )}. Dopo un ritorno riuscito da \textbf{hflush( )}, HDFS garantisce che i dati scritti fino a quel punto nel file abbiano raggiunto tutti i datanode nella pipeline di scrittura e siano visibili a tutti i nuovi lettori. Questo metodo non garantisce però che i datanode abbiano scritto i dati su disco, ma solo che siano nella loro memoria (in caso di interruzione dell'alimentazione del data center, ad esempio, i dati potrebbero andare persi). Per questo motivo esiste \textbf{hsync( )}, che garantisce la sincronizzazione \footnote{In Hadoop 1.x, \textbf{hflush( )} era chiamato \textbf{sync( )}, e \textbf{hsync( )} non esisteva}.
+
+HDFS non supporta più scrittori per lo stesso blocco, ma solo scrittori in parallelo su blocchi differenti.
+
+
+\subsection{Framework di esecuzione}
+Una delle principali idee alla base di MapReduce è separare il \textit{cosa} dal \textit{come}. Un programma MapReduce, riferito come \textit{job}, è costituito da codice per mapper e reducer (nonché combiner e patitioner) impacchettato insieme ai parametri di configurazione (ad esempio dove si trova l'input e dove deve essere memorizzato l'output). Lo sviluppatore invia il lavoro al submission node del cluster (in Hadoop, questo è chiamato \textbf{jobtracker}) e al framework di esecuzione (a volte chiamato "runtime") si occupa di tutto il resto: gestisce in modo trasparente tutti gli altri aspetti dell'esecuzione del codice distribuito, su cluster che vanno da un singolo nodo a poche migliaia di nodi.
+
+\subsubsection{Anatomia di un'esecuzione di un job MapReduce}
+
+\paragraph*{Invio del job}
+
+\paragraph*{Inizializzazione del job} 
+
+
+\subsubsection{Scheduling}
+Ogni job MapReduce è diviso in unità più piccole chiamate task. Ad esempio, un'attività mappa può essere responsabile dell'elaborazione di un determinato blocco di coppie chiave-valore di input (chiamato divisione dell'input in Hadoop). Analogamente, un'attività reduce può gestire una parte dello spazio chiave intermedio. Non è raro che i processi MapReduce abbiano migliaia di singole attività che devono essere assegnate ai nodi del cluster. Nei processi di grandi dimensioni, il numero totale di attività può superare il numero di attività che possono essere eseguite contemporaneamente nel cluster, rendendo necessario per l'utilità di pianificazione mantenere una sorta di coda di attività e tenere traccia dello stato di avanzamento delle attività in esecuzione in modo che le attività in attesa possano essere assegnate ai nodi non appena diventano disponibili.
+
+Un altro aspetto dello scheduling riguarda il coordinamento tra attività appartenenti a diversi job (es: da utenti differenti).
+
+
+
+\end{document}

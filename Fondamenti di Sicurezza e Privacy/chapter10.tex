@@ -1,0 +1,179 @@
+\chapter{Gestione degli accessi}
+I sistemi di autenticazione sono la prima linea di difesa contro i principali attacchi informatici. 
+La seconda misura di protezione fondamentale è quella dei sistemi di controllo dell'accesso. Questi sistemi associano ad un utente autenticato con successo i permessi di cui dispone all'interno di quel servizio/organizzazione.
+\\
+
+\noindent Un sistema di controllo degli accessi si compone di:
+\begin{itemize}
+    \item Una funzione di autenticazione, che verifica l'identità dell'utente;
+    \item Una componente di access control, che, seguendo le politiche di controllo dell'accesso settate, decide se l'utente può accedere o meno alle risorse;
+    \item Una componente di auditing, che tiene traccia delle risorse a cui accede l'utente e quali permessi gli sono stati assegnati. 
+\end{itemize}
+
+\noindent Queste tre componenti permettono di garantire le proprietà di:
+\begin{itemize}
+    \item Autenticazione;
+    \item Autorizzazione;
+    \item Accountability.
+\end{itemize}    
+
+\noindent Le politiche per il controllo dell'accesso specificano le condizioni che l'utente deve rispettare per accedere al sistema. Queste vengono formalizzate secondo un modello per il controllo dell'accesso e vengono applicate tramite un meccanismo di controllo dell'accesso, che è rappresentato da un'architettura con più componenti logici che sono responsabili di decidere se l'accesso è garantito o negato.
+
+Un sistema di controllo degli accessi ha tre elementi fondamentali:
+\begin{itemize}
+    \item L'utente autenticato che richiede l'accesso a determinate risorse o servizi;
+    \item Le risorse a cui viene ristretto l'accesso;
+    \item il diritto di accesso che l'utente possiede per le risorse (es: leggere, scrivere, eseguire, creare, cercare, ..).
+\end{itemize}
+
+\section{Modelli di controllo dell'accesso}
+\noindent Esistono quattro principali modelli per il controllo dell'accesso:
+\begin{itemize}
+    \item Discretionary Access Control (DAC), dove i permessi vengono direttamente associati all'identità verificata dell'utente;
+    \item Mandatory Access Contro (MAC), dove vengono assegnate delle etichette di sicurezza (\textit{security label}) sia agli utenti che alle risorse;
+    \item Role based Access Control (RBAC), dove i permessi sono associati al ruolo che l'utente ricopre;
+    \item Attribute-based Access Control (ABAC), dove le politiche di controllo dell'accesso sono espresse come condizioni sugli attributi posseduti dal soggetto che richiede l'accesso, dalla risorsa a cui vuole accedere o dal contesto in cui l'utente richiede l'accesso.
+\end{itemize}
+
+\subsection{Discretionary Access Control}
+L'amministratore della risorsa decide a chi garantire i permessi per accedere a quella risorsa ed, eventualmente, revoca i permessi assegnati.
+
+Un modo per rappresentare le politiche dicontrollo dell'accesso seconod questo modello è tramite la Matrice di Controllo degli Accessi. Le colonne rappresentano le risorse, le righe gli utenti e le celle i permessi assegnati. Questa soluzione richiede però un elevato spazio di memoria per salvare la tabella.
+
+Per limitare il problema della memoria è possibile utilizzare le Liste per il Controllo degli Accessi, dove per ogni risorsa viene specificata, tramite lista, quali utenti possono accedervi e con quali permesssi. Anche questa soluzione presenta però problemi: se voglio rimuovere tutti gli accessi ad un utente, devo scansionare tutte le liste alla ricerca della sua entry (stessa cosa devo fare se voglio vedere che permessi sono associati ad un utente).
+Si possono anche utilizzare le Capability List, che memorizzano per ogni utente le risorse a cui possono accedere con i relativi permessi.
+
+\subsection{Role Based Access Control (RBAC)}
+Introdotto per superare le limitazione del DAC. In questo caso i permessi vengono associati direttamente ad un ruolo, che generalmente rappresenta una qualifica nell'organizzazione, che viene associato poi all'utente.
+\\
+
+\noindent Esistono tre famiglie di RBCA:
+\begin{itemize}
+    \item La versione base comprende gli utenti, i ruoli, i permessi e le sessioni (specifica qual è il ruolo che l'utente ricopre in un dato momento);
+    \item La versione RBCA1 introduce il concetto di gerarchia dei ruoli, che riduce l'assegnamento dei permessi in quanto un ruolo superiore eredita i permessi dei ruoli sottostanti a cui è collegato;
+    \item La versione RBCA2 introduce i \textit{separation of duty constraints}, che permettono di implementare il principio del \textit{least privilege} -> per completare un'azione su una risorsa è necessaria l'azione di due utenti diversi (l'approvazione di un mutuo richiede l'approvazione di un impiegato e del direttore della banca). Questo principio è implementato con i vincoli di separation of duty. Ne esistono di due tipi:
+    	\item Vincoli statici, dove un utente non può essere assegnato a più di $n$ ruoli definiti in un insieme di ruoli;
+    	\item Vincoli dinamici, dove un utente non attivare più di $n$ ruoli appartenente all'insieme in quella sessione.
+\end{itemize}
+
+\noindent Questo modello di controllo dell'accesso permette di assegnare facilmente permessi ad un nuovo utente (basta che trovo il ruolo adatto) e permette di evitare di ricercare tutti i permessi di cui dispone un utente. 
+
+RBCA è usato in molti servizi/organizzazioni. Può comunque soffrire di problemi di scalabilità e molto spesso si rischi di assegnare un ruolo troppo elevato per l'utente (o creargli un ruolo ad-hoc).
+
+Un altro problema dei modelli in generale è che gli utenti possono abusare dei loro privilegi.
+
+\subsection{Attribute Based Access Control}
+Supponiamo di avere uno scenario in dipendente può accedere ai dati dei clienti solo se si trova fisicamente nella città dove ha sede l'organizzazione. Con un modello RBAC non sono in grado di specificare questo tipo di politica. Nel caso migliore dovrei specificare un ruolo per l'impiegato che gli dà accesso solo e soltanto alle info personali dei clienti, ma non posso porre come condizione la posizione fisica dell'utente.
+
+ABAC permette di specificare politiche molto specifiche e di garantire autorizzazioni dinamiche, in quanto posso semplicemente modificare il valore degli attributi specificati nelle condizioni delle politiche di controllo dell'accesso per cambiare l'effetto della politica.
+
+Se ad esempio ho un impiegato che lavora in un  determinato progetto e poi viene trasferito ad altro progetto all'interno dell'organizzazione, posso semplicemente cambiare la politca imponendo una condizione diversa sull'attributo "progetto". Posso così evitare situazioni in cui ho dipendenti che dispongono di permessi di cui non hanno bisogno. 
+
+ABAC viene utilizzato in molte organizzazioni dove è necessario specificare condizioni precise e dinamiche.
+
+\section{XACML}
+Lo standard che implementa l'Attribute Based Access Control è l'eXtensible Access Control Markup Language (XACML):
+\begin{itemize}
+    \item Fornisce un linguaggio per per specificare le politiche di controllo dell'accesso come condizioni sugli attributi del soggetto richiedente, della risorsa o del contesto in cui si richiede l'accesso;
+    \item Fornisce un linguaggio per specificare la richiesta di accesso da parte dell'utente e la risposta sull'accesso;
+    \item Fornisce un'architettura che identifica le componenti software che bisogna implementare per decidere, sulla base delle politiche sul controllo dell'accesso, se una richiesta deve essere accettata o negata;
+    \item Fornisce algoritmi per valutare la richiesta.
+\end{itemize}
+
+\noindent L'architettura è formata da quattro elementi fondamentali:
+\begin{itemize}
+    \item Policy Enforcement Point (PEP), che intercetta le richieste di accesso da parte dell'applicazione dell'utente e le redirige al POP;
+    \item Policy Decision Point (POP), che valuta la richiesta secondo le policy di accesso decise e gli attributi ricevuti;
+    \item Policy Amministration Point (PAP), che è usata per configurare le politiche di controllo dell'accesso da parte dell'amministratore di sistema;
+    \item Policy Information Point (PIP), che fornisce gli attributi sul soggetto, sulla risorsa o sul contesto al PDP.
+\end{itemize}
+
+\noindent Come avviene l'interazione tra le componenti:
+\begin{itemize}
+    \item L'amministratore inserisce le politiche sul controllo dell'accesso tramite il PAP;
+    \item L'utente richiede l'accesso ad una determinata risorsa;
+    \item La richiesta viene intercettata dal PEP, che la redirige al Context Handler (altro componente sw). Non è sempre presente, ma viene usato quando le richieste non vengono formulate direttamente nel linguaggio supportato dallo standard. Il CH traduce la richiesta e la invia al al PDP;
+    \item Il PDP può richiedere al CH di fornirgli gli attributi necessari per decidere se garantire o meno la richiesta. Il CH contatta il PIP che li recupera (ad esempio dal sistema di gestione dell'identità digitale dell'azienda);
+    \item Il PIP decide se concedere l'accesso oppure no basandosi sugli attributi e le condizioni della policy e restituisce la risposta al PEP. Nella risposta è possibile includere le Obbligazioni, che sono azioni che devono essere obbligatoriamente eseguite dal PEP nel momento in cui garantisce l'accesso al soggetto (es: inviare una mail all'owner della risorsa per notificare l'accesso, creare un log per tenere traccia dell'accesso, ...).
+\end{itemize}
+
+\noindent Esistono più modi in cui è possibile implementare le quattro componenti. Per esempio è possibile avere uno scenario centralizzato, in cui le componenti sono posizionate all'interno della stessa organizzazione. Qui potrei avere quattro server in cui girano ciascuna delle componenti.
+
+Posso avere anche il caso in cui le componenti sono tutte in outsurcing, come negli scenari cloud. Qui invece di implementare all'interno della rete dell'organizzazione, il PDP e il PEP sono fornite dal cloud provider. L'unica possibilità che viene data all'organizzazione è quella di configurare le politiche che regolano l'accesso alle risorse.
+
+\subsection{Specifica delle politiche}
+Esistono due componenti principali per specificare le politiche:
+\begin{itemize}
+    \item L'elemento policy;
+    \item Le regole.
+\end{itemize}
+
+\noindent Una policy che si applica ad una determinata risorsa è costituita da una o più regole. Ciascuna regola non può però essere valutata da sola, ma deve essere valutata come elemento policy (non ci sarà mai una decisione che si basa su una regola). 
+
+\begin{lstlisting}
+    <Policy>  
+    	<Target>  
+    		<Resources>  
+    		<Subjects>  
+    		<Actions>  
+    	</Target>  
+    	<RuleSet ruleCombiningAlgId = “DenyOverrides”>  
+    		<Rule ruleId=“R1”>  
+    		<Rule ruleId=“R2”>  
+    		...  
+    		<Obligations>  
+    	<RuleSet>  
+    </Policy>
+\end{lstlisting}
+
+\begin{lstlisting}
+    <Rule RuleId=“R1”  Effect=“Permit”>  
+    	<Target>  
+    		<Resources>  
+    		<Subjects>  
+    		<Actions>  
+    	<Condition>  
+    </Rule> 
+\end{lstlisting}
+
+\noindent Ciascuna regola dispone di un elemento `<target>` che associa una risorsa richiesta ad una policy applicabile. Può contenere uno o più di questi elementi:
+\begin{itemize}
+    \item \textbf{<match>} che specifica le condizioni rispetto al soggetto, alla risorsa e alle azioni;
+    \item \textbf{<AnyOf>} che funziona come OR logico per le condizioni, quindi mi basta soddisfare una sola condizione specificata in `<match>`;
+    \item \textbf{<AllOF>} che indica che tutte le condizioni specificate in \textbf{<match>} devono essere soddisfatte.
+\end{itemize}
+
+\begin{lstlisting}
+    <Target>  
+       <AnyOf>  
+          <AllOf>  
+             <Match>conditionA</Match>  
+          </AllOf>  
+          <AllOf>  
+             <Match>conditionB</Match>  
+          </AllOf>  
+       </AnyOf>  
+    </Target>
+\end{lstlisting}
+
+\subsection{Algoritmi di rule-combining}
+Questi algoritmi specificano come i risultati derivanti dalla valutazione delle regole devono essere combinati per valutare la policy. Esistono quattro  tipi di algoritmi standard:
+\begin{itemize}
+    \item \textbf{Deny-overrides}: se una regola ritorna \textit{deny} allora la valutazione della politica sarà anch'essa \textit{deny} e quindi l'accesso sarà negato;
+    \item \textbf{Permit-overrides}: se una regola ritorna \textit{permit} allora la valutazione della politica sarà anch'essa \textit{permit} e quindi l'accesso sarà consentito;
+    \item \textbf{First-applicable}: ogni regola viene valutata nell'ordine in cui è listata nella policy. Per una particolare regola, se il \textbf{<target>} metcha la \textbf{<condition>} valutata a Permit, Deny o Indeterminate, allora tale risultato sarà anche il risultato della policy;
+    \item \textbf{First-applicable}: applicabile solo a PolicySet:
+        \begin{enumerate}
+            \item  Se nessuna Policy è applicabile, allora il risultato è NotApplicable;
+        	\item  Se una o più policy sono applicabili allora il risultato è Indeterminate;
+        	\item  Se solo una policy è applicabile allora il risultato è il risultato della valutazione di quella policy.
+        \end{enumerate}
+\end{itemize}
+
+
+
+
+
+
+
+

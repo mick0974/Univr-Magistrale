@@ -1,0 +1,223 @@
+\chapter{Malware}
+
+Un malware (contrazione di malicious + software) è un software malevolo che compie azioni che mirano a compromettere la riservatezza, disponibilità o l'integrità dei dati o dei sistemi infettati.
+
+I sistemi possono venire infettati tramite:
+\begin{itemize}
+    \item Accesso diretto al sistema con dischi/chiavette USB infetti;
+    \item Attacchi di ingegneria sociale;
+    \item Campagne di phishing;
+    \item Visitando siti malevoli.
+\end{itemize}
+
+\section{Tipi di malware}
+\paragraph{Virus} Modifica/altera/compromette file o sw presenti sulla macchina della vittima. Ha la capacità di riprodursi, infettando le altre macchine presenti nella stessa rete. Richiede però l'azione umana per essere eseguito (link email, sito malevolo, apertura documenti malevolo). Questo tipo di malware è facilmente identificabile dagli antivirus, in quanto i virus hanno una specifica signature riconoscibile. I tipi di virus principali sono tre:
+\begin{enumerate}
+    \item Macro virus, codificati come una serie di comandi inseriti in una macro all'interno del file malevolo (pdf, doc, ...). Non c'è quindi un eseguibile vero e proprio, ma si compone di comandi scritti in un linguaggio di scripting (es: VBA, powershell, ...);
+	\item Virus polimorfici, che cambiano il loro comportamento a seconda dell'OS dove vengono eseguiti o a seconda dei sw presenti nella macchina;
+	\item Companion virus, i più insidiosi in quanto si mascherano come sw legittimo (aggiornamento sw o sw comunemente presenti nelle macchine windows).
+\end{enumerate}
+
+\paragraph{Worm} Simile al virus, ha l'obiettivo di permettere all'attaccante di ottenere il controllo della macchina. Questo viene solitamente fatto installando backdoor. Ottenuto il controllo, l'attaccante può rubare i dati presenti. Si può replicare nelle altre macchine presenti nella rete. Non necessitano di azione umana in quanto sfruttano vulnerabilità presenti nella macchina (OS, protocolli, ...).
+
+\paragraph{Trojans} Tra le tipologie più diffuse. Nato come sw malevolo che accede ad info sensitive sulla macchina della vittima (credenziali, info finanziarie, ...), è diventato nel tempo uno strumento usato per mantenere il controllo della macchina della vittima (installando una backdoor). Una volta ottenuto il controllo, solitamente vengono sfruttati per installare altri malware;
+\paragraph{Rootkit} Solitamente installato nel kernel (che si interfaccia tra le componenti sw e hw della macchina), monitora tutte le chiamate di funzioni a libreria effettuate dal sw in esecuzione permettendo di mascherare la presenza di altri malware nella macchina della vittima andando ad intercettare le chiamate a Windows API effettuate dagli altri malware. Offre anche funzionalità di accesso come amministratore/root alla macchina.
+
+Esistono tre categorie principali di Rootkit:
+\begin{enumerate}
+	\item Quelli a livello applicativo;
+	\item Quelli a livello del kernel (kernel rootkit);
+	\item Quelli  installati nel master boot record.
+\end{enumerate}
+
+I primi, che vengono mascherati come sw legittimo, sono facili da rimuovere (dagli antivirus), i restanti sono più difficili in quanto vanno a compromettere l'OS. Per eliminarli solitamente è necessario reinstallare il sistema.
+
+\paragraph{Dropper/downloader} Il dropper è un malware che contiene al suo interno il vero malware da infettare. Tipicamente prende la forma di macro incluse all'interno di allegati malevoli. Quando il documento viene aperto, la macro viene eseguita e il malware estratto. 
+
+Il downloader, invece, non include il malware al suo interno, va a scaricarlo da un sito malevolo.
+
+\paragraph{Keylogger} Malware che viene solitamente installato dal altri malware. Cattura tutti i caratteri digitati su tastiera, li salva in un file nascosto e periodicamente manda una copia del file all'attaccante (mail o command \& control).
+
+\paragraph{Bot} Pone la macchina infetta sotto il controllo dell'attaccante. Solitamente vengono posto sotto il controllo di un pc chiamato Bot Master, che invia comandi agli zombi. Tipicamente questo viene utilizzato per creare reti di bot (botnet) per effettuare attacchi DDoS. Uno scenario tipico è quello dove il bot master impartisce il comando ping verso uno specifico target, fintanto che l'obiettivo non è più in grado di rispondere.
+
+\paragraph{Cripto Miner} Utilizza le macchine infette per minare criptovalute e trasferirle nel wallet dell'attaccante. Molti di questi usano software di mining open source.
+
+\paragraph{Ransomware} Cifra i file nella macchine della vittima. La chiave di decifratura è fornita a fronte di un pagamento.
+
+\section{Prevenzione e riduzione dei danni}
+\paragraph{Come posso prevenire la  la ricezione di malware}
+\begin{itemize}
+    \item  Uso un sw di antispam e che vada ad analizzare il contenuto delle mail (link e file);
+    \item Uso security gatewway che vanno ad ispezionare il contenuto di alcuni dei protocolli di rete, come quello smtp, per cercare se sono presenti malware noti;
+    \item Blocco l'accesso a siti potenzialmente malevoli a livello del browser con specifici plug-in, che si appoggiano ad una lista di url in cui è sicuro navigare;
+\end{itemize}
+
+\paragraph{Come posso prevenire la diffusione del malware alle altre macchine della rete}
+\begin{itemize}
+    \item Mantengo l'OS aggiornato per impedire al malware di usare vulnerabilità ora patchate;
+    \item Prevengo l'accesso alle credenziale dell'amministratore o di specifici utenti, utilizzando sistemi di autenticazione MFA (es: oltre a utente e password richiedo una One Time Password che arriva tramite sms);
+    \item Limito i privilegi degli utenti che hanno accesso alle macchine (solitamente gli amministratori di sistema concedono più permessi del necessario), per limitare le azioni che il malware può effettuare;
+    \item Faccio usare all'amministratore due account differenti: il primo per gestire la parte social (email, comunicazioni, ...), e che è quindi più soggetto a campagne di phishing, e il secondo, con utente e password diversi dal primo, per gestire la rete.
+\end{itemize}
+
+\paragraph{Educazione dei dipendenti}
+\begin{itemize}
+    \item Educo sulle tecniche di ingegneria sociale usare per diffondere i malware;
+    \item Educo sulle tipologie di malware esistenti;
+    \item Educo sui rischi che comporta un'infezione per l'organizzazione e su come limitare i danni;
+    \item L'educazione deve essere fatta in maniera continua, per stare al passo con l'evoluzione tecnologica.
+\end{itemize}
+
+\paragraph{Backup regolari}
+\begin{itemize}
+    \item Mantengo più copie dei file e sw utilizzando diversi meccanismi (es: cloud) e/o dispositivi (es: disco esterno alla rete aziendale). I backup devono essere effettuati offline e tenuti in posizioni separate dalla rete/sistema dell'azienda. Per sicurezza effettuo più copie;
+    \item Mi assicuro che i dispositivi contenenti il backup non devono essere lasciati collegati perennemente alla rete;
+    \item Mi assicuro che i backup sono connessi solo a dispositivi puliti prima di iniziare il ripristino. Per sicurezza, scansiono i backup alla ricerca di malware prima di iniziare il ripristino.
+    \item Mantengo aggiornati i programmi di backup.
+\end{itemize}
+
+\paragraph{Ripristino in seguito ad attacco malware}
+\begin{itemize}
+    \item  Sconnetto tutti i dispositivi infetti dalla rete;
+    \item Spengo il Wi-Fi e disabilito ogni connessione importante della rete (es: switch);
+    \item Formatto i dispositivi in modo sicuro e reinstallo l'OS;
+    \item Scansiono il backup alla ricerca di malware;
+    \item Ricollego il dispositivo ripristinato ad una rete pulita ed eseguo le installazioni/aggiornamenti necessari;
+    \item Installo, aggiorno e avvio un antivirus;
+    \item Riconnetto il dispositivo alla rete dove era precedentemente collegato;
+    \item Controllo il traffico di rete e scansiono alla ricerce di infezioni rimanenti.
+\end{itemize}
+
+\section{Ransomware}
+
+Esistono molte famiglie di ransomware, che differiscono per le tecniche che implementano nelle varie fasi della cyber kill chain di un attacco ransomware. Possono colpire tutti i sistemi operativi.\\
+
+\paragraph{Tipi}
+\begin{itemize}
+    \item Encryption malware: cifrano i dati;
+    \item Locker: bloccano l'interfaccio utente con cui l'utente ha accesso all'OS e mostrano una schermata in cui si richiede un riscatto in cambio dello sblocco;
+    \item Master Boot Record ransomware: cifra il master boot record o lo modifica in modo che l'os non sia più caricabile;
+    \item Wiper: cancella i file presenti sulla macchina, senza possibilità che la vittima li recuperi.
+\end{itemize}
+
+\paragraph{Componenti principali di un ransomware}
+\begin{itemize}
+    \item Componente trojan: ha il compito di far arrivare il ransomware sulla macchia della vittima. Può implementare tre tipi di consegna:
+	\begin{enumerate}
+        \item Tramite email di phishing con allegato malevolo;
+        \item Tramite Exploit Kit che sfrutta vulnerabilità dell'OS o del sw;
+        \item Tramite la compromissione di siti legittimi;
+	\end{enumerate}
+    \item Componente di cifratura/decifratura: generalmente vengono usati due tipi di cifratura:
+    	\begin{enumerate}
+    	    \item Simmetrica per cifrare i dati della vittima (la cifratura simmetrica è veloce);
+    	    \item A chiave pubblica (asimmetrica) per cifrare la chiave simmetrica. Una volta cifrata viene inviata all'attaccante, che possiede la chiave privata.
+    	\end{enumerate}
+    \item Routin di estrazione della chiave: estrae la chiave utilizzata per cifrare i dati e la invia all'attaccante (solitamente la chiave viene generata nella macchina infetta);
+    \item Interfaccia con l'utente: presenta le istruzioni per pagare il riscatto.
+\end{itemize}
+
+\paragraph{Fasi della cifratura}
+\begin{itemize}
+    \item Genero la chiave simmetrica -> può essere generata al momento nelle macchine, inviata dall'attaccante tramite il command and control server o codificata nel codice del ransomware (soluzione usata agli inizi);
+    \item Cifro i dati con la chiave simmetrica;
+    \item Cifro la chiave simmetrica con la chiave pubblica e la invio all'attaccante;
+    \item Cancello la chiave simmetrica dalla macchina della vittima.
+\end{itemize}
+
+\noindent I primi ransomware usavano tecniche di cifratura primitive o deboli:
+\begin{itemize}
+    \item Analizzando il codice del malware è possibile risalire alla chiave codificata nel codice;
+    \item La cifratura con XOR e RC4 sono deboli ad attacchi di forza bruta.
+\end{itemize}
+
+
+\subsection{Killer switch}
+Si tratta condizioni implementate dagli sviluppatori del malware per stoppare il loro funzionamento (possono essere state lasciate all'interno per errore).
+
+\paragraph{Kill Switch per WannaCry} Il funzionamento di questo ransomware era legato alla registrazione di uno specifico domain name. Il ransomware andava inizialmente a controllare se il dominio era attivo, tramite DNS request, e, se riceveva l'indirizzo IP come risposta, andava ad effettuare una richiesta HTTP al dominio. Se riceveva anche qui risposta, bloccava la sua esecuzione. Registrando il dominio è stato possibile bloccare globalmente il malware.
+
+\paragraph{Killer Switch per Bad Rabbit} L'obiettivo di questo malware era distruggere il Master Boot Record della macchina. Si è scoperto che se il malware non riusciva a scrivere su disco il file \textit{C:$\backslash$Windows$\backslash$infpub.bat}, la cifratura veniva stoppata. Questo killer switch non ne bloccava però la propagazione sulla rete.
+
+\subsection{Cyber kill chain di un attacco ransomware}
+\begin{enumerate}
+    \item La vittima riceve una mail di phishing contenente un link ad un sito malevolo. La vittima visita il sito;
+    \item Il server web, che sta hostando un exploit kit, analizza la macchina della vittima alla ricerca di vulnerabilità;
+    \item Sfruttando le vulnerabilità trovate, il ransomware viene consegnato alla macchina ed si esegue;
+    \item L'eseguibile elimina le eventualy shadow copy presenti nel pc (introdotte da windows, sono copie di backup di file) e si propaga nel file system;
+    \item Il ransomware ricerca file con specifiche estensioni e li cifra;
+    \item Il ransomware contatta il C\&C per inviare all'attaccante la chiave di cifratura e info sulla macchina;
+    \item Il ramnsomware riceve info sul pagamento dal C\&C;
+    \item Il ransomware mostra le info sul pagamento all'utente:
+    	\begin{itemize}
+    	    \item Se l'utente paga, il ransomware contatta il C\&C per riottenere la chiave per decifrare la chiave usata per cifrare. Non è detta che la chiave venga fornita;
+           \item Se l'utente non paga entro il limite di tempo la chiave viene cancellata.
+    	\end{itemize}
+\end{enumerate}
+
+\paragraph{Fase di weaponization}
+\begin{itemize}
+    \item Ransomware basato su script-> inserisco in un allegato una macro che carica in memoria lo script malevolo. Difficile da individuare da parte degli antivirus;
+    \item Diversificazione del payload: nascondo il payload malevolo in file con differenti formati (es: odt, PDF, SVG, dll, ...). I client di posta bloccano mail contenenti eseguibili, quindi inserisco i ransomware all'interno di altri file;
+    \item Diversifico i pattern di accesso ai file: il classico pattern apertura file-cifratura-salvataggio file è facilmente individuabile dagli antivirus. Per evitare di essere scoperto posso modificare l'estensione del file prima di salvarlo oppure posso rimuovere i file eliminando le info associate ai file, che sono salvate nella MFT (Master File Table), presente in tutti i file system NTFS (in questo modo posso rimuovere l'accesso al file senza doverlo cifrare).
+\end{itemize}
+
+\paragraph{Fase di evasione}
+Tecniche per rendere più difficile il riconoscimento e/o l'analisi:
+\begin{itemize}
+    \item Time-based evasion techniques: per rallentare l'analisi o la scoperta del malware posso fare in modo che cifri i file solo in risposta a determinati eventi nel pc oppure inserire dei periodi di sleep nella fase di cifratura;
+    \item Data evasion techniques: eliminano le tracce del malware dal pc della vittima (es: file di config, log, ...). Per evitare l'analisi posso usare anche le tecniche di anti-dump: generalmente per analizzare in un malware si aspetta che venga caricato tutto in memoria e poi, con sw specifici, viene scaricato. Tento di impedire questa tecnica per bloccare l'analisi.
+    \item Code evasion techniques: prevedono tecniche di anti-debugging, anti-disassembling (es: cifro il ransomware, aggiungo offuscamento impacchetto il malware per evitare il disassemblaggio per la generazione del codice macchina) e anti-sandboxing (es: blocco o modifico il comportamento del malware se eseguito su una macchina virtuale -> controllo il mac address per capire se sono in un macchina virtuale in quanto vmware e virtualbox usano pattern specifici) per evitare l'analisi 
+    \item Network evasion techniques: cifra, anonimizzano il traffico (usando reti anonime) o cambiano l'indirizzo IP del C&C (domain shadowing);
+\end{itemize}
+
+\paragraph{Fase di delivery}
+\begin{itemize}
+    \item Phishing;
+    \item Spearphishing;
+    \item Malvertisement: la vittima clicca su un link pubblicitario e viene rediretta ad un sito infetto che hosta il ransomware o verso un exploit kit che cerca vulnerabilità nel sistema;
+    \item Sistemi di distribuzione del traffico: redirigono il traffico di un sito web legittimo verso uno malevolo che hosta un malware drive-by-download.
+\end{itemize}
+
+\paragraph{Fase di exploitation}
+\begin{itemize}
+    \item Exploit kit;
+    \item Vulnerabilità del target (vulnerabilità zero-days e vulnerabilità trovate durante la ricognizione).
+\end{itemize}
+
+\paragraph{Fase di installazione}
+\begin{itemize}
+    \item Rendere i file della vittima inaccessibili (cifro i file, li zippo in un archivio protetto da chiave, cifro il master boot record, distruggo i backup);
+    \item Diffusione attraverso la rete.
+\end{itemize}
+
+\paragraph{Fase di command and control (C2)}
+Durante la fase di command and control si ha la comunicazione tra il C2 e il ransomware. La comunicazione può avvenire in due momenti dell'infezione: 
+\begin{itemize}
+    \item Prima del processo di cifrature, se la chiave non viene generata sulla macchina della vittima, ma sul C2;
+    \item Dopo che è terminato il processo di cifratura, per comunicare all'attaccante il chiave di cifratura e ricevere dal C2 le info di pagamento.
+    Parte fondamentale di questa parte è la comunicazione col C2: 
+    \item Nei ransomware più \textit{naive} (== ingenui), gli IP dei C2 sono solitamente presenti come una lista nel codice dei ransomware -> posso risalire e blacklistare questi indirizzi /domini;
+    \item Nei ransomware più "furbi", viene implementato un Domain General Algorithm, che prevede che ransomware e C2 si mettano d'accordo sull'algoritmo da usare per generare il nome dei domini associati ai C2. In questo modo il nome viene generato dinamicamente ogni volta che il C2 viene contattato, rendendo quindi impossibile blacklistare il dominio. 
+    \item Si può anche utilizzare un bot di un botnet esistente come C2.
+\end{itemize}
+
+\paragraph{Fase di actions and objectives}
+Il ransomware raggiunge il suo obiettivo. Nel caso di un encryption ransomware l'obiettivo è di portare le vittime a pagare il riscatto. Questo può essere fatto:
+\begin{itemize}
+    \item Dando direttamente l'IBAN/paypal account alla vittima (strategia molto ingenua);
+    \item Richiedendo pagamenti in criptovalute;
+    \item Creando portali dedicati per supportare l'operazione di pagamento;
+\end{itemize}
+
+In alcuni ransomware sono presenti siti ospitati sulla rete Thor (garantisce l'anonimia) che fungono da servizio clienti del pagamento del riscatto.
+
+\section{Wanna Cry}
+Sfrutta una vulnerabilità del protocollo SMB usato da Windows per condividere file e accedere a dispositivi come le stampanti. Questa vulnerabilità consentiva all'attaccante di eseguire codice in remoto sulla macchina Per sfruttare questa vulnerabilità è stato usato l'EternaBlue exploit kit.  
+
+Una volta arrivato su una macchina infetta che implementa il protocollo SMB, utilizza EternalBlue per installare una backdoor sulle macchine che sono collegate alla macchina infettata e che utilizzano anch'esse il protocollo SMB per condividere file con la macchina. Tramite la backdoor, l'attaccate va ad installare una copia di Wanna Cry e lo esegue.  Un altro modo utilizzabile per arrivare sulle macchie è sfruttare tecniche di ingegneria sociale per far pluggare delle chiavette USB infette col ransomware nelle macchine delle vittime. L'esecuzione avviene sfruttando la funzionalità di autorun: basta modificare il file di autorun della chiavetta per fare eseguire in automatico il ransomware.
+
+Un altro modo ancora consiste nel sfruttare la funzione di file share, usati nelle organizzazioni per effettuare il backup dei dati. Di solito è presente un server, usato per la condivisione dei file, a cui si connettono tutte le macchine dell'organizzazione. Il pc infetto carica sul server dedicato al file sharing una copia del ransomware e, quando le altre macchine si connetteranno, andranno a scaricare la copia caricata. Una variante di questa tecnica consiste nel non scaricare il file stesso, ma creare dei link al file. Quando viene creato un link (es: link su desktop ad un file per renderlo più facilmente accessibile), viene creato un file LNK. All'interno di questi file è possibile includere dei comandi, che vengono eseguiti quando si clicca sul file LNK. Così basta inserire il comando per eseguire il ransomware sulla macchina dove è stato copiato il file LNK. 
+
+\section{Prevenzione specifica per gli attacchi ransomware}
+Molti consigli sono gli stessi visti per gli attacchi di ingegneria sociale. 

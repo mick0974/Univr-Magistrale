@@ -1,0 +1,96 @@
+\chapter{Panorama sui cyber threat}
+
+\section{Overview 2022}
+\begin{itemize}
+    \item La maggior parte degli attacchi sono stati cybercrimini e sabotaggi/spionagi;
+    \item Tipologie principali attacchi: malware, phishing, attacchi web, sfruttamento vulnerabilità;
+    \item Settori principalmente targhetizzati: governo, salute, comunicazioni.
+\end{itemize}
+
+\section{Malware}
+\paragraph{Ransomware as a servie} catena che si compone di più attori:
+\begin{itemize}
+    \item Operatori: gang cybercriminali che dispongono delle capacità e risorse per creare e gestire ransomware e infrastrutture collegate;
+    \item Affiliati: gang cybercriminali che affittano i ransomware dagli operatori;
+    \item Access Brocker: gang cybercriminali che ricercano info o vulnerabilità su organizzazioni target;
+\end{itemize}
+Se l'attacco dell'affiliato ha succeso (infezione e riscatto), il guadagno viene condifivo con il relativo operatore.
+
+\paragraph{Overview attacchi malware 2022}
+\begin{itemize}
+    \item Nell'ultimo anno il 66% delle aziende è stato colpito da un attacco ransomware;
+    \item Costo medio del riscatto: \$900.000;
+    \item Il 46\% delle aziende ha pagato il riscatto nonostante avesse dei backup;
+    \item Il 61\% delle paganti è riuscita a ripristinare i dati;
+    \item Solo il 4\% li ha ripristinati totalmente.
+\end{itemize}
+
+\section{Trend recenti negli attacchi malware}
+\paragraph{Tecnica Double Extortion} Oltre alla richiesta di riscatto per ottenere la chiave di decifratura usata per cifrare i dati, la vittima viene minacciata con la diffusione di tali dati (preventivamente copiati dall'attaccante) nel caso di mancato pagamento (tecnica double extortion). 
+
+\paragraph{Tecnica Triple Extortion} Funziona come la double extortion, solo che nel caso in cui l'azienda si rifiuti di pagare, gli attaccanti si rivolgono ai suoi clienti.
+
+Una delle vittime di questo tipo di attacco è stata un'azienda finlandese di consulenza psichiatrica. Gli attaccanti hanno minaccaito i clienti di pubblicare le loro conversazioni private con gli psichiatri in caso di mancato pagamento del riscatto.
+
+\paragraph{Intermittent Encryption} Tecnica che velocizza il tempo di infezione andando a cifrare solo alcuni byte/blocchi dei file. Tende ad evadere le analisi antimalware in quanto fa un uso limitato delle operazioni di lettura/scrittura su file.
+
+\paragraph{Lockbit 3.0} Aggiornamento del malware Lockbit che introduce un programma di bug hunting con ricompensa.
+
+\paragraph{BlackCat} Scritto in Rust, è uno dei primi ad implementare la crittografia intermittente. Offre features per pubblicare i dati e ricercare info sul target.
+
+\paragraph{Attacco alla Ferrari} Attacco di supply chain o ransomware, non ancora verificato. Sono stati rubati 7GB di dati, contenenti progetti e manuali tecnici.
+
+\paragraph{Altri attacchi} Sono stati attaccati il Gestore Servizi Energetici e l'università di Pisa.
+
+\paragraph{Urnsif} Banking Trojan (malware che ruba credenziali dell'home banking o dati della carta di credito) che usa attacchi di phishing tramite mail, le quali contengono un documento office con macro che scarica Ursnif. Quando l'utente si collega all'home banking, il malware si attiva lanciando un alert di infezione che invita a scaricare una nuova app.
+
+\paragraph{Attacco alla Colonial Pipeline} Effettuato ai danni della Colonial Pipeline, ha reso inutilizzabili i suoi sistemi di distribuzione del carburante. Questo attacco può essere inteso come un attacco alle strutture critiche (blocco trasporti, blocco attività, ...).
+
+\paragraph{Nuove tecniche di evasione} Nel ransomware usato nell'attacco alla WastedLocker, creato in modo specifico per questo attacco (conosceva il nome dei file da cercare), è stata implementata una nuova tecnica per evitale la rilevazione da parte del sistema. In generale, molti sistemi anti-malware vanno a ricercare nei programmi il richiamo a specifiche api di Windows (es: apertura file, lettura, cifratura). Per evitare questo problema, il malware ha utilizzato il Windows Cache Manager. Invece di cifrare i dati direttamente su disco, e venire quindi rilevato, ha usato questo manager per caricarli in memoria e cifrarli qui, per poi risalvarli su disco.
+
+\paragraph{Botnet} Usati per attacchi DDoS e per distribuire altri malware. I principali sono Emotet e Trickbot. Emotet nasce inizialmente nel 2016 come Financial Trojan, per poi evolversi come mezzo per scaricare altri malware. L'anno scorso, grazie ad un'operazione dell'Europol, ha perso terreno. A novembre è però risorto.
+
+\paragraph{Malware cellulari} Tra i più famosi c'è Pegasus, spyware usato da molti governi per controllare personaggi di interesse. MasterFred, altro malware mobile, invece va a costruire sopra le interfacce legittime di pagamento di varie app (es: Netflix) delle interfacce fasulle, sfruttando le impostazioni di accessibilità di Android.
+ 
+\paragraph{FluBot} Si tratta di un malware Android/IOS, che ha come obiettivo i dati relativi alle carte di credito, diffusosi molto tramite sms contente i link infetti. Generalmente il messaggio si spacciava come proveniente da Un'azienda di trasporti (es: DHL) che richiedeva di installare l'app allegata per facilitare/velocizzare la consegna.
+
+\section{Attacchi comuni}
+\paragraph{Attacchi di phishing (ultimi 6 mesi)} Targetizzati INPS e BPER Group (banca).
+
+\paragraph{Smiching} Attacchi di ingegneria sociale tramite sms.
+
+\paragraph{Vshing} Voice phishing -> nella mail di phishing non metto un link ma un numero di telefono da contattare (es: contattare servizio clienti per tentato accesso all'account paypal).
+
+\paragraph{EvilProxy} Permette di superare le autenticazioni a due fattori eseguendo un attacco di \textit{man in the middle}.
+
+\paragraph{Compromissione di siti legittimi} Hijacking di siti legittimi;
+
+\paragraph{Uso di HTTPS} Ora anche i siti malevoli potrebbero avere una connessione HTTPS, quindi la presenza di certificato non assicuro la legittimità del sito. 
+
+\section{Attacchi cloud}
+\paragraph{Vulnerabilità OMIGOD} I ricercatori di sicurezza hanno rivelato i dettagli di quattro vulnerabilità, note collettivamente come OMIGOD, che interessano lo strumento Open Management Infrastructure (OMI) di Microsoft. Sostengono che un utente malintenzionato remoto non autenticato può sfruttare alcune o tutte queste vulnerabilità per ottenere l'accesso amministrativo all'ambiente virtuale Linux in esecuzione sul servizio di cloud computing Azure di Microsoft.
+
+\paragraph{ChaosDB} ChaosDB è una vulnerabilità critica nel servizio di database Azure Cosmos DB di Microsoft. Un utente malintenzionato potrebbe sfruttarlo per ottenere l'accesso in lettura/scrittura alle informazioni del database di altri utenti, nonché all'infrastruttura di hosting di Azure sottostante.
+
+\section{Attacchi a dispositivi IoT}
+
+La maggior parte dei dispositivi IoT è vulnerabile ad attacchi di media/alta gravità. Questo è dovuto a quattro fattori principali:
+\begin{enumerate}
+    \item Il traffico dati non è criptato;
+    \item Molto spesso gli utenti non cambiano password e continuano ad usare quella di default;
+    \item I sistemi operativi usati (principalmente relativi al controllo industriale) sono spesso non aggiornati;
+    \item In generale hanno bassa memoria, capacità computazionale, spazio per salvare e potenza
+\end{enumerate}
+
+\paragraph{BadAlloc} Una ricerca di Microsoft ha scoperto che molti dei dispositivi che usano sistemi embedded o real time scritti in C sono facile preda di attacchi di Buffer Overflow (C è noto per le vulnerabilità legate alla gestione della memoria). Il problema è dovuto alle librerie C di allocazione dinamica della memoria (heap): se alla malloc si passa un integer che causa Integer Overflow (numero negativo o troppo grande), l'attaccante può sovrascrivere la memoria allocata dalla malloc ed eseguire codice malevolo.
+
+\paragraph{Classe di vulnerabilità Ripple20} è stato scoperto che questa libreria, implementata in molti dispositivi, sono presenti 19 vulnerabilità, di cui 4 molto gravi.
+
+\paragraph{Telecamere di videosorveglianza} Molto spesso nei sistemi di videosorveglianza non sono implementati sistemi di autenticazione o, se lo sono, utilizzano sistemi deboli (es: password).
+
+Sul sito \href{https://www.shodan.io/}{https://www.shodan.io/} è possibile ricercare tutti i dispositivi IoT collegati alla rete e ricavarne informazioni. Può essere usato per studiare attacchi mirati.
+
+\paragraph{*Malware Mirai} Da varie ricerche si è scoperta che telecamere re e stampanti sono i dispositivi IoT meno sicuri. Mirai è un malware progettato per operare su dispositivi connessi a Internet, specialmente dispositivi IoT, rendendoli parte di una botnet che può essere usata per attacchi informatici su larga scala. Scansiona continuamente la rete alla ricerca di dispositivi accessibili protetti da password di default o molto comuni (es: abc123, admin123, 1234, password, ...).
+
+\paragraph{Vulnerabilità nei dispositivi healthcare} Il settore della healthcare è tra quelli più vulnerabili ad attacchi informatici. Tra i dispositivi più a rischio troviamo i sistemi di imaging (es: radiografie) e di monitoraggio dei pazienti. Ad esempio, Medtronic è stata costretta a ritirare dal mercato diverse pompe di insulina a causa di una vulnerabilità che consentiva di modificare i valori della pompa (rischio coma glicemico).
+

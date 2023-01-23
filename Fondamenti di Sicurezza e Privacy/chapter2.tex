@@ -1,0 +1,74 @@
+\chapter{Cyber Kill Chain}
+\label{chapter2}
+
+\paragraph{Threat intelligence} Analisi dei possibili attacchi informatici che possono colpire l'organizzazione. Determinare le fasi di un attacco e le sue tecniche permette di fare una scelta mirata sulle misure di protezione da adottare per prevenirlo o ridurne l'impatto. \\
+
+\section{Fasi della cyber kill chain}
+La cyber kill chain, in generale, descrive le fasi in cui può essere suddiviso un attacco:
+\begin{enumerate}
+    \item Reconnaissance: decidere e ottenere info sul target. La reconnaissance può essere:
+\begin{itemize}
+    \item Attiva: raccolgo info interagendo col target.
+        \begin{itemize}
+            \item nmap per creare una mappa della rete dell'obiettivo (porte disponibili, porte aperte, servizi associati); 
+	        \item port scanning;
+	          \item vulnerability scanner (es: nessus);
+	        \item Linkedin per cercare ruoli specifici nell'organizzazione.
+        \end{itemize}
+    \item Passiva: raccolgo info senza interagire col soggetto.
+	      \begin{itemize}
+	          \item whois permette di raccogliere info su un dominio o specifico IP: quando è stato creato; data rilasco e scadenza certificato; chi è l'amministratore di sistema; contatto tecnico per rinnovo dominio;
+	          \item Shodan: porte aperte; servizi accessibili; lista vulnerabilità;
+	        \item Social media;
+	        \item mantego.
+	      \end{itemize}
+\end{itemize}
+
+	
+\item Weaponization: trovare o creare l'attacco che exploita una vulnerabilità. Posso usare:
+\begin{itemize}
+    \item Metasploit per creare un attacco che sfrutta vulnerabilità. Fornisce codice già pronto per sfrittare vulnerabilità;
+    \item Exploit DB;
+    \item Vell Framework;
+    \item Aircrack;
+    \item SQL map;
+    \item Cobal strike, tool legittimo a pagamento usato per penetration testing. Ha struttura modulare.
+\end{itemize} 
+
+\item Deliver: decido in che modo consegnare l'exploit. Posso sfruttare: siti web, social media, email, USB, ...
+
+\item Exploitation: exploito una vulnerabilità. Posso usare:
+\begin{itemize}
+    \item  SQL injection;
+    \item Buffer overflow;
+    \item Malware;
+    \item Javascript hijacking;
+    \item User exploitation;
+    \item Compromissione sito legittimo (inserimento script o sfruttamento vulnerabilità framewok usati nel sito).
+\end{itemize}
+
+\item Installation: mantengo persistente l'attacco all'interno dell'ambiente. Posso usare:
+\begin{itemize}
+    \item DDL hijacking;
+\item Meterpreter;
+\item Remote Access Trojan;
+\item Registry chenges;
+\item PowerShell commands.
+\end{itemize}
+
+\item Command and Control (C2): stabilisco un canale di C2 conl'attaccante per manipolare da remoto la vittima.
+
+\item Actions and Objectives: eseguo azioni per reggiungere il goal originario. Posso:
+\begin{itemize}
+    \item Raccogliere credenziali utente;
+\item Scalare privilegi;
+\item Reconnaissance interna;
+\item Movimento nell'ambiente;
+\item Recccogliere dati;
+\item Distruggere sistemi;
+\item Riscrivere o corrompere dati;
+\end{itemize}
+\end{enumerate}
+
+\section{Trickbot}
+Torjan avanzato che si diffonde principalmente tramite campagne di spearphishing usando mail che contengono allegati malevoli o link che eseguono sw malevoli. Gli attacchi recenti usano mail di phishing.
