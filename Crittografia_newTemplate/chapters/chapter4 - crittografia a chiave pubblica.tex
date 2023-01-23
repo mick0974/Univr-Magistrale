@@ -1,0 +1,222 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Crittografia a chiave pubblica}
+\labch{chapter4}
+
+La crittografia a chiave pubblica prevede l'uso di due chiavi: $P_k$ (Public key) e $S_k$ (Secret Key). La chiave privata è posseduto da un solo agente; la chiave pubblica è posseduta da tutti. La $P_k$ è usata per codificare il messaggio; la $S_k$ è usata per decodificarlo. Senza $S_k$ non deve essere possibile ricavare il plaintext dal cyphertext. Con questo sistema chiunque può codificare messaggi, ma solo che possiede la secret key può leggerli.\\
+
+\noindent Componenti del sistema:
+\begin{align*}
+    G: \ &1^K \rightarrow (P_k, S_k)\\
+    E: \ &(m, P_k) \rightarrow E(m, P_k)\\
+    D: \ &(c, S_k) \rightarrow D(c, S_k)
+\end{align*}
+
+\noindent In questo sistema vale sempre:
+\begin{align*}
+   \forall m \ D(E(m, P_k), S_k) = m
+\end{align*}
+
+\noindent L'input $1^k$ del generatore $G$ è il security parameter, che in questo caso rappresenta la lunghezza, in bit, della chiave. Non sempre rappresenta la lunghezza della chiave; in generale il security parameter è quel numero/parametro tale per cui al suo crescere il protocollo diventa sempre più sicuro.
+
+\section{Scambio di chiavi Diffie-Hellman}
+
+L'algoritmo di scambio di chiavi Diffie-Hellman nasce per risolvere il seguente problema: Alice e Bob vogliono condividere una chiave segreta da utilizzare in una cifratura simmetrico, ma il loro unico mezzo di comunicazione è insicuro.
+
+Per prima cosa Alice e Bob concordano su un numero primo $p$ e un generatore $g$ di $Z_p^*$, che rendono pubblici. 
+A questo punto Alice sceglie un intero $x$ che terrà segreto e Bob un intero $y$ che terrà anch'egli segreto. Bob e Alice usano i loro numeri interi segreti per calcolare
+\begin{align*}
+     	\underbrace{g^x \pmod{p}}_{Alice} \hspace{1cm}\text{e}\hspace{1cm} \underbrace{g^y \pmod{p}}_{Bob}
+\end{align*}
+\noindent Il passo successivo consiste nello scambiare, sul canale non sicuro, i due risultati: Alice invia $g^x$ a Bob e Bob invia $g^y$ a Alice. Infine Alice e bob utilizzano i rispettivi interi segreti per calcolare
+\begin{align*}
+     	\underbrace{(g^y)^x \pmod{p} = g^{yx} \pmod{p}}_{Alice} \hspace{0.5cm}\text{e}\hspace{0.5cm} \underbrace{(g^x)^y \pmod{p} = g^{xy} \pmod{p}}_{Bob}
+\end{align*}
+\noindent I due valori calcolati sono gli stessi.
+
+\noindent Supponendo che un attaccante ascolti l'intera conversazione, egli potrà ricostruire la chiave segreta condivisa $g^x^y$ solo se riuscirà a trovare $x$ tale per cui $g^x \pmod p$ equivale al valore inviato da Alice sul canale. Stesso discorso per $y$. Le linee guida attuali suggeriscono che Alice e Bob scelgano un $p$ primo avente circa 1000 bit.
+
+L'attaccante conosce $g^a \pmod{p}$ e $g^b \pmod{p}$, ma anche $g$ e $p$. Quindi se riuscisse a estrarre uno solo degli esponenti $a$ e $b$ da $g^a \pmod{p}$ e $g^b \pmod{p}$, allora sarebbe in grado di calcolare la chiave di sessione $g^a^b$. Potrebbe sembrare che Alice e Bob siano al sicuro a condizione che l'attaccante non sia in grado di risolvere il Problema del Logaritmo Discreto (DLP), ma questo non è del tutto corretto. È vero che un metodo per trovare il valore condiviso di Alice e Bob è risolvere il DLP, ma non è questo il problema preciso che l'attaccante deve risolvere. La sicurezza della chiave condivisa di Alice e Bob si basa sulla difficoltà del seguente problema, potenzialmente più semplice.
+
+\begin{definition}
+Sia \(p\) un numero primo e \(g\) un generatore di \(Z_p^*\). Il problema di Diffie-Hellman (DHP) è il problema di calcolare il valore \(g^a^b \pmod p\) a partire dai valori conosciuto \(g^a \pmod p\) e \(g^b \pmod p\).
+\end{definition}
+
+\noindent È chiaro che il DHP non è più difficile del DLP. Se l'attaccante riesce a risolvere il DLP, allora può calcolare gli esponenti segreti di Alice e Bob. Ma il viceversa è meno chiaro. Supponiamo che l'attaccante abbia un algoritmo che risolva efficientemente il DHP. Può usarlo anche per risolvere in modo efficiente il DLP? La risposta ad oggi non è nota, e quindi DF non è dimostrabilmente sicuro (non si è in grado di dimostrare che rompere DH è tanto difficile quando risolvere il DLP).\\
+
+\subsection{Ipotesi di Diffie-Hellman}
+DH non è dimostrabilmente sicuro secondo i problemi difficili per ora trovati. D'altro canto però, qualcuno potrebbe costruire degli algoritmi con alla base di DH. In questi casi tali algoritmi si dimostrano sicuri sotto l'ipotesi che DH sia sicuro. Per fare ciò nasce l'ipotesi di DH.
+
+Supponiamo che sia difficile distinguere una tripla $(g^x, g^y, g^x^y)$, con $x, y \in \{1, ..., p-1\}$, da una tripla $(g^x, g^y, g^z)$, con $x, y \in \{1, ..., p-1\}$\sidenote{Praticamente se do la soluzione all'attaccante lui non riesce a capire che è la soluzione.}. Se l'attaccante identifica $x$, allora riesce a riconoscere la tripla corretta. In caso contrario, ha una possibilità su due di indovinare la tripla corretta. Infatti, essendo la probabilità di indovinare $x$ $Pr=\frac{1}{2^k}$, con $k$ i bit della chiave, allora probabilità totale di indovinare la tripla è:
+\begin{align*}
+    Pr = \frac{1}{2^k} + \frac{1}{2} (1 - \frac{1}{2^k}) = \frac{1}{2} + \frac{1}{2^{k+1}}
+\end{align*}
+\noindent L'idea è che anche se un attaccante dispone di un algoritmo per indovinare la tripla giusta, questo gli porta un vantaggio molto minimale rispetto allo sparare a caso.
+
+\section{Crittosistema di Rivest, Shamir e Adleman (RSA)}
+
+\noindent RSA si basa sulla seguente dicotomia:
+\begin{itemize}
+    \item \textbf{Setup:} Siano $p, q$ due numeri primi di $k/2$ bit ognuno (comunque di grandi dimensioni) e siano $e, c$ due interi;
+    \item \textbf{Problema:} Risolvere la congruenza $x^e \equiv c \pmod{pq}$ per la variabile $x$;
+    \item \textbf{Facile:} Bob, che conosce i valori di $p$ e $q$, può trovare facilmente $x$ (teoremi sopra);
+    \item \textbf{Difficile:} Un attaccante, che non conosce i valori dei due primi, non può calcolare facilmente $x$;
+    \item \textbf{Dicotomia:} Risolvere $x^e \equiv c \pmod{pq}$ è facile per chi conosce specifiche informazioni aggiuntive (ovvero i valori di $p$ e $q$), ma è difficile per chiunque altro.
+\end{itemize}
+
+\noindent La chiave segreta di Bob è una coppia di grandi primi $p,q$. La sua chiave pubblica è la coppia $(n, e)$ costituita dal prodotto $n= pq$ e da un esponente $e$ che è relativamente primo a $(p - 1)(q - 1)$. Alice prende il suo testo in chiaro e lo converte in un intero $m$ compreso tra $1$ e $n$. Crittografa $m$ calcolando
+\begin{align*}
+    c \equiv m^e \pmod n
+\end{align*}
+
+\noindent L'intero $c$ è il suo testo cifrato, che invia a Bob. È quindi semplice per Bob risolvere la congruenza $x^e \equiv c \pmod n$ per recuperare il messaggio di Alice $m$, perché Bob conosce la fattorizzazione $n = pq$. Un attaccante, d'altra parte, può intercettare il testo cifrato $c$, ma a meno che non sappia come fattorizzare $n$, presumibilmente avrà difficoltà a risolvere $x^e \equiv c \pmod n$.
+
+\subsection{Generazione delle chiavi, encryption e decryption}
+
+\textbf{Generazione chiavi}
+\noindent \textbf{Output:} chiave pubblica $(n, e)$ e chiave privata $(n, d)$.
+\begin{enumerate}
+    \item Scegli la grandezza del security parameter $k$.
+    \item Scegli due numeri $p, q$ di $k/2$ bit ciascuno.
+    \item Calcola $n = pq$.
+    \item Calcola $\varphi(n) = (p-1)(q-1)$.
+    \item Calcola l'esponente $e \in_R Z_{\varphi(n)}^*$ tale per cui
+    \begin{align*}
+        MCD(e, \varphi) = 1
+    \end{align*}
+    \item Calcola la chiave privata $d$ tale per cui
+    \begin{align*}
+        de \equiv 1 \pmod{\varphi(n)}
+    \end{align*}
+\end{enumerate}
+
+\noindent \textbf{Encryption}
+Data la chiave pubblica $(n, e)$ e il messaggio $m$, la funzione di encryption è
+\begin{align*}
+    c = m^e \pmod n
+\end{align*}
+
+\noindent \textbf{Decryption}
+Data la chiave privata $(n, d)$ e il cyphertext $c$, la funzione di decryption è
+\begin{align*}
+    m = c^d \pmod n
+\end{align*}
+
+\noindent La condizione $MCD(e, \varphi(n)) = 1$ assicura che assicura che l'inverso $e \pmod{\varphi(n)}$ esista, in modo che ci sia sempre una chiave privata $d$.
+
+\noindent L'essenza di RSA può essere rappresentata con la seguente equazione:
+\begin{align*}
+    (m^e)^d = m^{ed} = m^{1+ k\varphi(n)} = m^{k\varphi(k)} \cdot m = 1^k \cdot m = m \pmod n
+ \end{align*}
+ 
+\subsection{Problema delle radici quadrate (versione matematica)}
+Se rimpiazziamo, nel \textit{Fermat’s little theorem}, il numero primo $p$ con un numero non primo $n$ vale ancora $a^{p-1}\equiv 1 \pmod p$? In generale no. Esiste però un caso particolare, quando $n = pq$ (con $p, q$ primi), che è il caso più importante per la crittografia. 
+        
+\begin{theorem}[Formula di Eulero per \(pq\)]
+    Siano \(p, q\) due numeri primi distinti e sia $g = MCD(p-1, q-1)$. Allora
+    \begin{align*}
+        a^{(p-1)(q-1)/g} \equiv 1 \pmod {pq} \text{ per tutti gli $a$ che soddisfano MCD(a, pq)=1}
+    \end{align*}
+    \noindent In particolare, se $p$ e $q$ sono due numeri primi dispari, allora 
+    \begin{align*}
+        a^{(p-1)(q-1)/2} \equiv 1 \pmod {pq} \text{ per tutti gli $a$ che soddisfano MCD(a, pq)=1}
+    \end{align*}
+\end{theorem}
+
+\noindent Lo scambio di chiavi di DH si affida alla difficoltà di risolvere equazioni nella forma 
+\begin{align*}
+    a^x \equiv b \pmod p
+\end{align*} 
+\noindent dove $a, b, p$ sono quantità note e $x$ è la variabile da trovare. RSA, invece, si affida alla difficoltà di risolvere equazioni nella forma
+\begin{align*}
+    x^e \equiv c \pmod n
+\end{align*}
+\noindent dove le quantità note sono $e, c, n$ e la $x$ è sconosciuta. In altre parole, RSA si affida all'assunzione che è difficile prendere radici e-esime modulo $n$. 
+
+Se $n$ è primo, risulta che è relativamente facile calcolare la radice esima in modulo $n$, come mostrato di seguito.
+
+\begin{theorem}
+    Sia \(p\) un numero primo e \(e \ge\) 1 un intero che soddisfa \(MCD(e, p-1)=1\). Allora \(e\) ha un inverso modulo \(p\), ovvero
+    \begin{align*}
+        de \equiv 1 \pmod{p-1}
+    \end{align*}
+    \noindent Quindi la congruenza 
+    \begin{align*}
+        x^e \equiv c \pmod p
+    \end{align*}
+    \noindent ha l'unica soluzione \(x \equiv c^d \pmod p\).
+\end{theorem}
+
+\noindent Il teorema sopra mostra che è facile prendere una radice e-esima se il modulo è un numero primo $p$. La situazione per un modulo complesso $n$ è simile, ma è semplice da calcolare solo se i fattori di $n$ sono conosciuti.
+
+Vediamo ora il caso in cui $n = pq$ è il prodotto di due numeri primi.
+
+\begin{theorem}
+    Siano \(p, q\) due primi distinti e sia \(e \ge 1\) tale per cui \(MCD(e, (p-1)(q-1)) = 1\). Allora \(e\) ha un inverso modulo \((p-1)(q-1)\), ovvero
+    \begin{align*}
+        de \equiv 1 \pmod{(p-1)(q-1)}
+    \end{align*}
+    \noindent Quindi la congruenza 
+    \begin{align*}
+        x^e \equiv c \pmod{pq}
+    \end{align*}
+    \noindent ha l'unica soluzione \(x \equiv c^d \pmod{pq}\).
+\end{theorem}
+
+\subsection{Debolezze di RSA}
+RSA ha diverse debolezze:
+\begin{itemize}
+    \item In passato è stato attaccato a causa di una sua errata implementazione. Il protocollo vuole che il valore $e$ venga scelto \textbf{casualmente} tra tutti i numeri relativamente primi in $\varphi_n$. Gli implementatori usavano però funzioni random a 64 bit per generare $e$ o $d$, andando a settare i bit "mancanti" a zero. Supponendo che il valore debba essere a 564 bit, il problema è che la probabilità di generare casualmente un numero con i primi 500 bit è estremamente bassa ($\frac{1}{2^{500}}$);
+    \item Supponendo di lavorare in $Z_n^*$, se il messaggio cifrato $m^e$ è più piccolo di $n$, calcolare la radice e-esima (come visto sopra) è facile. Quindi scenari con messaggi piccoli sono problematici per RSA;
+    \item Supponiamo che l'insieme dei possibili messaggi che Alce possa spedire a Bob sia piccolo. Allora un attaccante potrebbe semplicemente cifrare tutte le possibili combinazioni e confrontarle con cyphertext inviato da Alice per capire qual è il messaggio originario. Quindi messaggi sparsi sono problematici in RSA;
+    \item Siamo sicuri che tutti i bit dell'inverso del cyphertext siano difficili da calcolare? Ad esempio, col simbolo di Legendre, è possibile ottenere il bit meno significativo del logaritmo discreto. Per poter dire che un sistema è sicuro non basta che dal cyphertext non si possa ottenere il plaintext, ma non deve essere possibile estrarre \textbf{alcuna informazione parziale}. Per RSA non è dimostrato;
+    \item Dati due messaggi ripetuti inviati nella stessa "comunicazione", RSA genererà lo stesso cyphertext. 
+\end{itemize}
+
+\noindent RSA è sicuro perché ad oggi non si conosce un algoritmo probabilistico polinomiale per il calcolo della radice e-esima di un numero. Ma cosa vuol dire questo? Che non esiste esiste un algoritmo che ritorna la radice e-esima? Ma se allora esistesse un algoritmo che ritorna $\sqrt[e]{a}$ con probabilità $1 / 100$? In questo caso, cosa vuol dire con probabilità $1 / 100$? Che l'algoritmo, se reiterato sullo stesso numero, in media con $100$ tentativi ritorna il risultato corretto\sidenote{Applichiamo l'algoritmo una prima volta, se fallisce lo riapplichiamo una seconda e così via finché non ritorna il risultato corretto.}, oppure che funziona correttamente solo su $1 / 100$ degli $a$ possibili? 
+
+Quindi il fatto che l'algoritmo calcoli la radice e-esima di $a$ con probabilità $1/100$ può voler dire:
+\begin{enumerate}
+    \item Dato un $a$ a caso, la probabilità che l'algoritmo arrivi a calcolare la radice e-esima è $1/100$;
+    \item Fissato $a$, la probabilità che l'algoritmo ritorni il risultato è $1/100$.
+\end{enumerate}
+
+\noindent Il "modo" di trasformare la probabilità da $1/100$ a $1$ descritta appena sopra funziona solo nel secondo caso. Quindi se fossimo nel primo scenario saremmo al sicuro? In realtà no, anche nel primo caso la probabilità può essere trasformata in $1$:
+
+\begin{definition}
+Dato $a \in Z_n^*$ fissato e scelto $R \in_R Z_n^*$, allora $aR^e$ è un numero distribuito uniformemente tra gli elementi di $Z_n^*$. 
+\end{definition}
+\begin{proof}
+Essendo l'elevamento $R^e$ invertibile, in quanto $e$ è scelto in modo che la radice e-esima dia esattamente $R$, allora la funzione che mappa $R$ in $R^e$ è una funzione invertibile tra due insiemi che hanno la stessa cardinalità, e quindi biettiva. Un elemento scelto uniformemente in $Z_n^*$ viene mappato in un elemento scelto uniformemente in $Z_n^*$. Se prendiamo un elemento distribuito uniformemente in $Z_n^*$ e lo moltiplichiamo per $a$, otteniamo ancora un elemento distribuito uniformemente in $Z_n^*$, essendo anche la moltiplicazione una funzione invertibile. Quindi $aR^e$ è un elemento casuale di $Z_n^*$. 
+\end{proof}
+
+\noindent Siamo partiti da un elemento $a$ fissato e siamo riusciti a costruire un elemento casuale in $Z_n^*$. Se a questo elemento cerchiamo di applicare l'algoritmo, $1/100$ volte abbiamo la risposta. Quindi abbiamo resto l'algoritmo del primo caso indipendente dal numero fissato $a$. Dato il nuovo input, l'algoritmo calcolerà con $Pr = 1/100$ la radice $\sqrt[e]{aR^e}$. Da questo risultato riusciamo a ottenere la radice e-esima di $a$? Si, in quanto
+\begin{align*}
+    \sqrt[e]{aR^e} = R\sqrt[e]{a} = \frac{R\sqrt[e]{a}}{R} = \sqrt[e]{a}
+\end{align*}
+
+\noindent Siamo riusciti quindi a costruire un algoritmo che, a partire da una black-box con $a$ casuale calcola correttamente $ \sqrt[e]{a}$ con probabilità $1/100$, riesce a calcolare correttamente  $\sqrt[e]{a}$ con probabilità $1/100$ con $a$ fissato. 
+
+Come verifichiamo che la radice ritornata sia quella corretta? Basta semplicemente prendere il risultato e elevarlo a $e$.
+
+In generale, diciamo che un sistema è attaccabile quando il tempo necessario ad attaccarlo è polinomiale. Questo vuol dire che se esistesse un qualsiasi algoritmo in grado di calcolare $ \sqrt[e]{a}$ con probabilità polinomiale in $k$, noi saremmo in grado di trovare un algoritmo che calcola la stessa cosa con un tempo medio polinomiale in $k$. 
+Poiché partiamo dall'idea che non esiste un algoritmo PPT in grado ci calcolare $ \sqrt[e]{a}$, non esiste nemmeno un algoritmo che riesce a calcolarla con una probabilità che sia polinomialmente piccola. La probabilità di successo di un eventuale algoritmo è più piccola di qualsiasi polinomio, dove per polinomio si intende
+\begin{align*}
+    \forall c : Pr[correttezza] < \frac{1}{k^c}
+\end{align*}
+\noindent Questa formula non è del tutto corretta, in quanto, solitamente, con chiavi piccole i protocolli sono attaccabili. La forma corretta è la seguente
+\begin{align*}
+    \exists c \ \forall \bar{k} \ \exists k > \bar{k} \ \big|Pr[attacco\_ha\_successo]\big| < k^{-c}
+\end{align*}
+
+\noindent Fissato un livello di difficoltà $c$, vogliamo che la probabilità di successo di un attaccante sia più piccola del polinomio costruito col quel livello di difficoltà $k^{-c}$. Non abbiamo però garanzia che questo sia sempre vero, ma se fissiamo una chiave sufficientemente lunga $\bar{k}$, allora possiamo rendere la probabilità di attacco inferiore al polinomio $k^{-c}$. Secondo questa definizione, idealmente aumentando la dimensione della chiave l'attacco diventa più difficile.\\
+
+\noindent Dato $n$, è vero che non esiste un algoritmo PPT in grado di calcolare $\sqrt[e]{a}$? Esiste, ed è quello che conosce la fattorizzazione di $n$. Se fissiamo $n$, l'algoritmo che calcola $\sqrt[e]{a}$ esiste ed è quello che conosce l'informazione \textbf{trapdoor}, ovvero la fattorizzazione di $n$.
+
+Quando diciamo che una funzione è difficile da calcolare dobbiamo essere precisi, dobbiamo dire input e output della funzione. Per RSA si pensa che non esista un algoritmo PPT che dati $n, e, a$ calcola $\sqrt[e]{a}$ in $Z_n^*$.
+
+\subsection{Complessità di RSA}
+Da un punto di vista computazionale, quanto è complesso RSA? Quanti passi di computazione dobbiamo fare con una chiave di $k$ bit? La complessità di $m^e$ è polinomiale: sommare due numeri a $k$ bit costa $k$, moltiplicarli costa $k^2$, elevarli tra loro costa $k^3$ (grazie all'iterative squaring). Quindi codifica e decodifica di RSA costano $k^3$. Se lavoriamo con $1'000$ bit, allora queste operazioni ci costano un miliardo di operazioni.
+
+Diversamente AES ha un costo di codifica sul singolo blocco che è costante, in quanto alla fine lavora su tabelle e registri. Per questo motivo la crittografia a chiave pubblica non è generalmente usata per cifrare i messaggi, ma per cifrare e scambiare una chiave di sessione usata poi in codifiche simmetriche, molto meno costose.  
+
+Diversamente da RSA, che permette di inviare una chiavi qualsiasi, Diffie-Hellman permette di scambiare un'unica chiave, sempre che non si crei una nuova chiave di DH ogni volta. 

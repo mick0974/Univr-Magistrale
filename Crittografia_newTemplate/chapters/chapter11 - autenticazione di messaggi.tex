@@ -1,0 +1,315 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Autenticazione di messaggi}
+\labch{chapter11}
+
+Vogliamo ora risolvere il problema dell'autenticazione. Uno dei motivi per cui abbiamo introdotto le funzioni pseudocasuali è per autenticare messaggi. Supponiamo di trovarci nel casi in cui due o più agenti debbano scambiarsi dei messaggi in rete e che non siano interessati alla segretezza dei messaggi. Vogliono però essere sicuri che i messaggi siano creati solo da loro e non da agenti esterni al gruppo. 
+
+Una delle possibili soluzioni consiste nello scegliere una funzione pseudocasuale $f$ da condividere tra gli agenti (condividendo il seme tramite un canale sicuro). Tutti gli agenti condividono la funzione e sono in grado di calcolarla. Ad ogni messaggio viene quindi accodato il valore $f(m)$. Questa è l'autenticazione del messaggio. La funzione è pseudocasuale e quindi chiunque non conosca il seme vede questa sequenza come una sequenza casuale. 
+
+In quale senso è sicuro?
+
+\begin{definition}[Falsificatore (forger)]
+    Sia $F$ un algoritmo PPT che interroga $f$ su una sequenza di messaggi $m_1, m_2, ..., m_l$ anche in modo adattivo. Alla fine produce una coppia $(m, \sigma)$. Diciamo che $F$ ha successo se:
+    \begin{align}
+        \sigma = f(m) \ \land \ \forall i \ m \ne m_i
+    \end{align}
+\end{definition}
+
+\noindent Il forger ha quindi successo se riesce a costruire l'autenticazione corretta di un nuovo messaggio diverso da tutti quelli che ha usato per interrogare $f$. 
+
+Vogliamo ovviamente che la probabilità del forger di avere successo sia più piccola di ogni polinomio:
+\begin{align*}
+    \forall F \in PPT \ Pr[F\_ha\_successo] < k^{-w(1)}
+\end{align*}
+
+\noindent Sappiamo che questa probabilità è più piccola di ogni polinomio quando la funzione è effettivamente casuale, in quanto l'autenticazione di un messaggio diverso dagli altri osservati è scelta casualmente tra le sequenze di $k$ bit. Di conseguenza indovinerà con probabilità $\frac{1}{2^k}$. Se la sequenza è pseudocasuale e indovinasse con una probabilità significativamente diversa, se noi costruiamo il distinguisher che applica $F$ e ritorna $1$ se ha successo, allora:
+\begin{itemize}
+    \item La probabilità che ritorni $1$ davanti ad una sequenza veramente casuale è $\frac{1}{2^k}$;
+    \item La probabilità  che ritorni $1$ davanti ad una sequenza pseudocasuale è ampiamente alta.
+\end{itemize}
+
+\noindent Questo è un distinguisher. Di conseguenza sappiamo che se la funzione è pseudocasuale il forger non esiste, in quanto potrebbe essere usato per creare un distinguisher. Sappiamo che usare una funzione pseudocasuale per creare un'autenticazione dei messaggi funziona.
+
+Abbiamo trovato un modo per autenticare i messaggi, ma i messaggi che stiamo autenticando sono di $k$ bit. Se qualcuno dovesse autenticare messaggi più lunghi come dovrebbe fare? 
+
+\section{Autenticazione di messaggi di lunghezza arbitraria}
+
+Potremmo prendere il messaggio $m$ e scomporlo in blocchi $m_i$ di $k$ bit. A questo punto possiamo cercare di costruire un'autenticazione di $m$ applicando $f$ ad ogni $m_i$ e combinando i risultati. Definiamo quindi $f(m)$ come:
+\begin{align*}
+    f(m) = f(m_1) \oplus ... \oplus f(m_l)
+\end{align*}
+
+\noindent Questa soluzione funziona? Lo XOR è un'operazione commutativa, di conseguenza un attaccante potrebbe invertire l'ordine dei blocchi mantenendo il nuovo messaggi comunque autenticato. Riusciamo a dimostrare allora che questa soluzione permette di costruire un forger? Il forger è semplice da costruire: prende un messaggio composto da almeno 2 blocchi, lo autentica, prende una permutazione del messaggio diversa dall'identità e usa la stessa autenticazione. Riesce quindi a costruire l'autenticazione corretta per un messaggio diverso da quelli osservati. 
+\\
+
+\noindent \underline{Esempio:}
+\noindent Se noi chiediamo $f(m_1, m_2)$, la coppia $\left(m_2 \ m_1, f(m_1, m_2) \right)$ è autentica.
+\\
+
+\noindent Siamo anche in grado, in questi schema, di creare un messaggio autenticato senza neanche interrogare $f$: se il numero dei blocchi è pari e sono tutti uguali, il loro XOR è $0$\sidenote{Infatti $f(m_1 \ m_1) = 0$}.\\
+
+\noindent Vogliamo vietare lo scambio dei blocchi, facendo in modo che la posizione dei blocchi impatti su $f$. Proviamo a definire ore $f(m)$ come:
+\begin{align*}
+    f(m) = f(<1> m_1) \oplus ... \oplus f(<l> m_l)
+\end{align*}
+
+\noindent Dove il numero tra parentesi angolari indica la sequenza di bit necessari a codificare la posizione del blocco. I blocchi non saranno più di $k$ bit, ma di $k - bit\_posizione$. Se invertissimo $m_1$ con $m_2$, l'autenticazione cambierebbe perché calcoleremmo $f(<1> m_2)$. Non funziona più neanche la creazione del messaggio autenticato senza interrogare $f$, in quanto anche se i blocchi fossero uguali, i bit di posizione associati sono diversi. 
+
+Questo sistema funziona? Anche in questo sistema esiste un forger. Supponiamo di voler autenticare il messaggio $m_1 \ m_2$, allora:
+\begin{align*}
+    f(m_1 \ m_2) = f(<1> m_1) \oplus f(<2> m_2)
+\end{align*}
+
+\noindent Supponiamo ora di voler autenticare i messaggi $m_1' \ m_2$ e $m_1 \ m_2'$:
+\begin{align*}
+    f(m_1' \ m_2) &= f(<1> m_1') \oplus f(<2> m_2)\\
+    f(m_1 \ m_2') &= f(<1> m_1) \oplus f(<2> m_2')
+\end{align*}
+
+\noindent Ci siamo fatti autenticare tre messaggi di 2 blocchi, dove poi abbiamo cambiato prima il blocco di sinistra e poi quello di destra. Se calcoliamo lo XOR delle tre autenticazioni otteniamo:
+\begin{center}
+    {\tabulinesep=1.2mm
+       \begin{tabu} {c c}
+        & $f(m_1 \ m_2) = f(<1> m_1) \oplus f(<2> m_2)$\\
+        & $f(m_1' \ m_2) = f(<1> m_1') \oplus f(<2> m_2)$ \\
+        $\bigoplus$ & $f(m_1 \ m_2') = f(<1> m_1) \oplus f(<2> m_2')$\\
+        \hline 
+        & $f(m_1' \ m_2') = f(<1> m_1') \oplus f(<2> m_2')$\\
+    \end{tabu}}
+\end{center}
+
+\noindent Siamo riusciti a costruire l'autenticazione di un messaggio mai autenticato prima e quindi abbiamo creato un forger. Per creare un messaggio nuovo, abbiamo provato a modificare il messaggio originale un blocco alla volta.
+
+Il problema di questa soluzione sta nello XOR usato in maniera piatta. Quando usiamo lo XOR allo stesso livello più volte, è un'operazione associativa, commutativa e che lo XOR tra due oggetti uguali è $0$. \\
+
+\noindent Se noi però applicassimo lo XOR in maniera nidificata, allora la storia sarebbe diversa. Definiamo quindi:
+\begin{align*}
+    f(m_1 \ ... \ m_l) = f(m_l \oplus ... \oplus f(m_3 \oplus f(m_2 \oplus f(m_1))))
+\end{align*}
+
+\noindent Questo è un sistema di autenticazione (è ben definito, dato un messaggio, come si fa il calcolo). Ma è sicuro? Si, è dimostrabilmente sicuro. 
+
+Alla fine abbiamo la nostra funzione pseudocasuale $f$ da cui costruiamo una funzione $f'$ che prende una qualunque sequenza di bit e produce una funzione:
+\begin{align*}
+    f': \{0, 1 \}^{kl} \rightarrow \{0,1 \}^k
+\end{align*}
+
+\noindent Quindi moltiplichiamo la dimensione dell'input. Non è più una lunghezza di $k$ bit, ma una lunghezza arbitraria purché multipla di $k$. Potremmo vedere questo oggetto come una estensione della nostra idea di funzione pseudocasuale. Supponiamo di avere una funzione scelta casualmente tra le funzioni da $ \{0, 1 \}^{kl}$ a $\{0,1 \}^k$, oppure una funzione da $kl$ bit a $k$ bit scelta fra un insieme più ristretto (perché dipende dallo stesso seme usato per $f$). 
+
+Vogliamo dimostrare che questo sistema è sicure nel senso che non esiste nessun algoritmo PPT che è in grado di distinguere una funzione casuale da una pseudocasuale. Poiché il forger può essere trasformato in distinguisher, dire che questo è un sistema di autenticazione o una funzione pseudocasuale da $kl$ bit a $k$ bit è la stessa cosa. L'esistenza di un forger implica l'esistenza di un distinguisher.
+
+Vogliamo mostrare che la nuova funzione che abbiamo ottenuto è una funzione pseudocasuale secondo la definizione che abbiamo dato. Costruiamo una $F_i$ tale che:
+\begin{align*}
+    F_i(m_1 \ ... \ m_l) = R(m_l \oplus ... \oplus R(m_{i+1} \oplus f(m_i \oplus ... \oplus f(m_2 \oplus f(m_1))))))
+\end{align*}
+
+\noindent Per i primi $i$ livelli applichiamo la $f$ vera e propria, mentre per i livelli successivi applichiamo una funzione casuale $R$. A questo punto sappiamo che che $F(0)$ è il caso in cui usiamo solo la funzione $R$, mentre $F(l)$ è il caso in cui usiamo solo al funzione pseudocasuale $f$. Possiamo quindi costruire tutti i livelli intermedi e sappiamo che esiste un $i$ tale per cui:
+\begin{align*}
+    \left|P(i) - P(i-1)\right| > k^{-c}
+\end{align*}
+
+\noindent Riusciamo quindi a creare un distinguisher che, sul livello i-esimo, è in grado di riconoscere l'uso di una funziona casuale da una pseudocasuale. Di conseguenza abbiamo un distinguisher per $f$.
+\\
+
+\noindent\fbox{%
+    \parbox{\textwidth}{%
+        Nidifichiamo $f$, ovvero la applichiamo di volta in volta, e contiamo quante volte la applichiamo. Arrivati ad applicarla $i$ volte (o $i-1$ o $i+1$), il distinguisher se ne accorge, ovvero quello è il punto in cui si vede la differenza tra l'uso della funzione casuale e pseudocasuale. Come facciamo a fare questo esperimento? La $f$ pseudocasuale la conosciamo quando applichiamo gli esperimenti, la applichiamo per i primi $i$ livelli e per il livello $i+1$ o diamo una sequenza di bit pseudocasuali o continuiamo ad usare $f$. A questo punto abbiamo generato un esperimento compatibile con quello del forger. 
+    }
+}
+
+\section{Firma digitale}
+Abbiamo trovato un modo per autenticare messaggi arbitrari. Se Alice e Bob si scambino messaggi e se li autenticano tra di loro, allora hanno la garanzia che nessuno di esterno possa interferire su quello che si stanno dicendo. Ma se Alice e Bob non si fidano gli uno degli altri? Se Alice fa delle promesse a Bob e poi non le mantiene, come può Bob dimostrare che effettivamente Alice ha fatto queste promesse? Supponendo che i messaggi siano autenticati, sorgono due problemi:
+\begin{itemize}
+    \item Come può la terza parte sapere che i messaggi sono veramente autenticati? Per verificarlo è necessario sapere il seme di $f$. Conoscendo il seme è però possibile sempre generare nuovi messaggi autentici, quindi che è messo nelle condizioni di verificare l'autenticità e di conseguenza messo nella condizione di poter creare nuovi messaggi autentici;
+    \item Anche conoscendo il seme, per verificare l'autenticità del messaggio, non è possibile provare chi ha originato il messaggio (il messaggio "io Alice pagherò Bob" può essere scritto e autenticato da Bob).
+\end{itemize}
+
+\noindent Questo è il problema della \textbf{non repudiation}: noi vogliamo un meccanismo che non permetta di ripudiare un messaggio. La semplice autenticazione di messaggi che abbiamo visto fino ad ora non è sufficiente. Questo problema è legato al concetto di firma digitale. L'idea è di autenticare il messaggio garantendo la non ripudiabilità. Innanzitutto non deve essere possibile per chi è in grado di verificare la firmo di poterla rifare in qualche modo. 
+Solamente l'agente che firma deve essere in grado di firmare.
+
+\begin{definition}[Concetto di firma digitale]
+    Solo uno (o pochi) agente/i può firmare; tutti possono verificare la firma. Di conseguenza chi può verificare non può firmare. 
+\end{definition}
+
+\noindent Devono esistere due chiavi (semi): una privata per firmare e una pubblica per verificare. Dalla chiave pubblica non deve essere possibile ricavare la chiave privata. Un algoritmo per fare questo è RSA. 
+
+Con RSA per firmare si usa la chiave privata $(n, d)$ per firmare e la chiave pubblica $(n, e)$ per verificare. La firma di un messaggio $m$ diventa $(m, m^d)$. La verifica di un messaggio firmato $(m, \sigma )$ è $\sigma^e == m$.
+\\
+
+\noindent Per definire la correttezza per un protocollo di firma ci appoggiamo alla definizione di forger:
+\begin{definition}[Sistema di firma digitale]
+    Un sistema di firma digitale è una tripla di algoritmo PPT:
+    \begin{enumerate}
+        \item Generazione chiavi $G: 1^k \rightarrow (P_k, S_k)$;
+        \item Sign $S: S_k, m \rightarrow (\sigma)$;
+        \item Verify $V: P_k, m, \sigma \rightarrow \{0, 1\}$ (accetta, non accetta);
+    \end{enumerate}
+\end{definition}
+
+\noindent Questi algoritmo devono soddisfare una serie di proprietà:
+\begin{itemize}
+    \item Se la firma è costruita correttamente secondo l'algoritmo di firma, allora il sistema deve dire $1$ con probabilità 1\sidenote{Diciamo "deve dire $1$ con probabilità $1$", e non "deve dire sempre si", in quanto l'algoritmo di verifica potrebbe essere un algoritmo probabilistico. Di conseguenza potrebbe sbagliare, ma vogliamo che sbagli con probabilità $0$, quindi mai.}:
+    \begin{align*}
+        \forall m \ Pr[V(P_k, m, S(S_k, m)) = 1] = 1
+    \end{align*}
+
+    \item Sia il forger $F \in PPT$ un algoritmo che chiede la verifica di messaggi $m_1, m_2, ..., m_l$, anche in modo adattivo, e che produce una coppia $(m, \sigma)$. Allora $F$ ha successo se l'algoritmo di verifica dive "accetta" e il messaggio firmato è differente da tutti i messaggi precedenti:
+    \begin{align*}
+        V(P_k, m, \sigma) = 1 \land \forall i \ m \ne m_i
+    \end{align*}
+
+    Allora la probabilità che $F$ abbia successo è minore di ogni polinomio:
+    \begin{align*}
+        \forall F \in PPT \ Pr[F\_ha\_successo] < k^{-c}
+    \end{align*}
+\end{itemize}
+
+\noindent La definizione soddisfa le proprietà che abbiamo dato? Ad $F$ diamo in pasto solo la chiave pubblica. Di conseguenza se non è in grado di generare una firma falsa è evidente che la chiave pubblica non può produrre firme. Di conseguenza un sistema che soddisfa questa definizione è un sistema che soddisfa anche la proprietà di non ripudiabilità.
+
+RSA soddisfa questa definizione? No, non è vero che ogni forger ha una probabilità trascurabile. Supponiamo di avere due messaggi e la loro firma $(m_1, m_1^d)$ e $(m_2, m_2^d)$. Se prendiamo il messaggio $m_1 \cdot m_2$, la sua firma sarà $(m_1 \cdot m_2, m_1^d \cdot m_2^d)$. Chiunque è in grado di creare quest'ultima firma conoscendo la firma di $m_1$ e $m_2$. Se il messaggio è $m^e$, la sua firma sarà $(m^e, m)$. Abbiamo ottenuto due messaggi firmati mai visti prima. Nel secondo caso, soprattutto, è possibile ottenere un messaggio cifrato senza interrogare l'agente che conosce la chiave privata.
+
+Si potrebbe obiettare che $m^e$ e il prodotto di due messaggi sono messaggi senza senso; è vero, ma la definizione di forger accetta la generazione di un qualsiasi messaggio, non per forza sensato (la difficoltà resta nel firmare un messaggio dato).
+
+RSA non è corretto secondo la definizione data sopra.
+
+\subsection{Firmare messaggi lunghi}
+Abbiamo visto che RSA non è resistente ad attacchi di forgery. Ora vogliamo vedere come cifrare messaggi lunghi (es: DVD). Prendiamo l'intero messaggio e lo codifichiamo con Cypher Block Chaining, usando il risultato come firma? Così finiremmo per ottenere una firma lunga quanto il messaggio. Non è ragionevole come approccio (es: mi servirebbe un secondo DVD per contenere la firma). 
+
+Per fare questo usiamo le funzione hash crittograficamente sicure. Infatti noi andiamo a firmare con RSA l'hash del messaggio, quindi:
+\begin{align*}
+    \sigma = H(m)^d
+\end{align*}
+
+\noindent Firmando l'hash del messaggio otteniamo una firma lunga $k$ e non più lunga quanto il messaggio (oltre al fatto che firmare l'hash è computazionalmente meno costoso). 
+
+Cosa succede se $H(m_1) = H(m_2)$, ovvero abbiamo collisione? Sarebbe possibile costruire un forger, in quanto chiedendo la firma $\sigma$ di $m_1$, possiamo usarla per produrre $(m_2, \sigma)$, e quindi firmare un messaggio mai visto. Se ad esempio l'hash di un messaggio sono i suoi primi/ultimi $k$ bit, è semplice trovare altri messaggi che producono lo stesso hash. Inoltre, in questo caso, ottenuta la firma del primo messaggio, abbiamo ottenuto la firma anche per tutti gli altri messaggi che iniziano/finiscono con gli stessi bit. 
+
+Le funzioni hash, per natura intrinseca, hanno collisione. Quindi coppie di messaggi con lo stesso hash possono essere usate da un forger per attaccare. Per questo è necessario usare funzioni hash collision resistant, ovvero dove sia computazionalmente difficile trovare due messaggi con lo stesso hash.
+
+\begin{definition}[Funzione collision resistant]
+    Funzione tale per cui per ogni algoritmo PPT la probabilità che questo riesca a restituire una collisione sia più piccola di ogni polinomio. 
+\end{definition}
+
+\noindent Alcune proposte di funzioni collision resistant sono MD4 (Message Digest -> prendo un messaggio lungo e lo digerisco per produrre un messaggio più corto), MD5, MD6, SHA1 (Secure Hash), SHA2. 
+
+SHA2 è ad oggi la funzione che sembra più inattaccabile. Come facciamo a far vedere che uno di questi modi non è più sicuro? Basta mostrare una collisione.  Se partiamo dall'idea che trovare collisione sia difficile, vuol dire che nessuno è in grado di trovarla.
+\\
+
+\noindent Se all'interno di RSA usiamo funzioni collision resistant allora la firma dell'hash di un messaggio diventa sicura. Ad esempio non siamo più in grado di produrre la firma di $m_1 \cdot m_2$ a partire dalle firme di $m_1$ e $m_2$. L'hash di $m_1 \cdot m_2$ non è più il prodotto dell'hash di $m_1$ e dell'hash di $m_2$, è qualcosa di diverso, e quindi non siamo più in grado di produrre le firme. Non è neanche più valida la firma $(m^e, m)$, in quanto adesso diventa $(m^e, H(m^e)^d)$. 
+
+L'uso delle funzioni hash collision resistand risolve sia il problema della firma dei messaggi lunghi sia il problema del forgery attack su RSA puro.
+
+Ad oggi l'unica funzione che viene considerata sicura è SHA2. 
+
+
+\begin{definition}[Funzioni hash one way]
+    Una funzione hash è one way se dato $x$ è difficile trovare un qualsiasi $m$ tale che $H(m) = x$. 
+\end{definition} 
+
+\noindent Se $H$ è collision resistant allora $H$ è one way.
+\begin{proof}
+    Supponiamo che $H$ non sia one way. Dimostriamo che $H$ non è collision resistant\sidenote{Poichè $(A \rightarrow B) \leftrightarrow (\lnot B \rightarrow \lnot A)$. Quindi dimostriamo $\lnot B \rightarrow \lnot A$ per dimostrare la prima parte.}. 
+    
+    Prendiamo un messaggio $m$ casuale. Calcoliamo $x = H(m)$ e diamo in pasto $x$ alla macchina $H^{-1}$, che produrrà un messaggio $m'$, tale per cui $H(m') = x$. Qual è la probabilità che $m=m'$? 
+
+    Ci sono infiniti messaggi che vengono mappati su $x$, e noi ne abbiamo scelto uno a caso uniformemente tra tutti. $H^{-1}$ ne sceglie un altro. Qual è la probabilità che quello scelto sia quello che abbiamo scelto noi? La probabilità è:
+    \begin{align*}
+        Pr = \frac{1}{cardinalita'\_dei\_messaggi}
+    \end{align*}
+
+    \noindent Sostanzialmente poiché il messaggio $m$ lo abbiamo scelto a caso, la probabilità che $H^{-1}$ ritorni il messaggio che abbiamo scelto è praticamente $0$. Quindi con probabilità sostanzialmente $1$ abbiamo trovato una collisione. Se $H$ non è collision resistant abbiamo un algoritmo molto semplice che produce una collisione. 
+
+    Quindi avere una funzione collision resistant è più forte di avere una funzione hash one way.
+\end{proof}
+
+\section{Blind signature}
+
+Come possiamo firmare un messaggio di cui non conosciamo il contenuto? Supponiamo che qualcuno debba mandarci il pin dello nostra carta, e che questo ci venga spedito in una lettera firmata dal direttore della banca. Nella lettera il pin viene coperto da un adesivo, in modo che chi firma non possa vedere il pin. Questo è un esempio di un messaggio che si vuole firmare senza far conoscere il contenuto. Come si può fare questo in formato elettronico?
+
+In un messaggio finora abbiamo preso $H$ del messaggio e lo abbiamo firmato. Ma come facciamo a calcolare l'hash se non possiamo conoscere il contenuto del messaggio?
+
+Abbiamo un messaggio che non conosciamo e che non possiamo conoscere e lo dobbiamo firmare. Partiamo dall'idea che ci fidiamo della persona che di passa il messaggio. Per fare questo introduciamo il concetto di \textbf{blind signature}.
+
+\begin{definition}[Blind signature]
+    Esiste un messaggio $m$ che l'agente $B$ deve firmare. $B$ non può conoscere $m$.
+\end{definition}
+
+\noindent L'agente $A$ che ha bisogno della firma procede così:
+\begin{itemize}
+    \item Sceglie $b \in_R Z_n^*$ (\textbf{blinding factor});
+    \item Calcola $mb^e$ e ne chiede la firma.
+\end{itemize}
+
+\noindent L'agente $B$:
+\begin{itemize}
+    \item Calcola la firma $\sigma = (mb^e)^d$ (usiamo uno schema di firma senza funzioni hash; useremo la struttura dei messaggi o la ridondanza dei messaggi per evitare gli attacchi visti nella firma con RSA senza hash - è fondamentale che i messaggi abbiano una struttura);
+    \item Comunica $\sigma$ ad $A$.
+\end{itemize}
+
+\noindent L'agente $A$:
+\begin{itemize}
+    \item Calcola $\sigma' = \frac{\sigma}{b}$, ovvero $\sigma b^{-1}$;
+    \item Produce $(m, \sigma')$.
+\end{itemize}
+
+\noindent Verifichiamo se $(m, \sigma')$ è una firma valida.
+\begin{proof}
+    \begin{align*}
+        \sigma' = \sigma \cdot b^{-1} = (mb^e)^d b^{-1} = m^d b^{ed} b^{-1} = m^d \cdot b \cdot b^{-1} = m^d
+    \end{align*}
+\end{proof}
+
+\noindent Quindi la firma prodotta da $A$ $(m, \sigma')$ a partire dalla firma di $b$ è una firma valida per $m$. Durante il processo di firma, $B$ non ha modo di conoscere $m$, in quanto moltiplicare il messaggio per un oggetto casuale di $Z_n^*$ trasforma il messaggio originale in un elemento casuale di $Z_n^*$.\\
+
+\noindent Vogliamo ora provare a migliorare questo sistema affinché $B$, anche se continua a non avere conoscenza del messaggio, abbia la garanzia che il messaggio sia costruito in maniera adeguata a quello che doveva comunicare (es: se lo scopo del messaggio è comunicare un pin, deve effettivamente contenere quel pin). 
+
+Vogliamo quindi che $B$ abbia la garanzia che il messaggio sia ben formato. Ci sono più modi per farlo:
+\begin{enumerate}
+    \item La chiave pubblica usata da $B$ può essere usata solo per spedire quel tipo di messaggio (es: pin);
+    \item Complichiamo leggermente il protocollo.
+\end{enumerate}
+
+\noindent Vediamo come funziona la soluzione 2.
+\\
+
+\noindent $A$:
+\begin{itemize}
+    \item Genera $m_1, ..., m_l$ differenti messaggi di comunicazione pin.  I messaggi devono essere tutti identici, tranne per il pin;
+    \item Genera $b_1 \ ... \ b_l$ blinding factors;
+    \item Spedisce $m_1b_1^e, ..., m_lb_l^e$.
+\end{itemize}
+
+\noindent $B$:
+\begin{itemize}
+    \item Sceglie $i \in_R$ \{1, ..., l\} (sceglie una lettera);
+    \item Comunica $i$ da $A$.
+\end{itemize}
+
+\noindent $A$:
+\begin{itemize}
+    \item Comunica $m_1,b_1, ..., m_{i-1},b_{i-1},, m_{i+1},b_{i+1}, m_l,b_l$. Comunica tutto tranne $m_i, b_i$.
+\end{itemize}
+
+\noindent $B$:
+\begin{itemize}
+    \item Verifica la correttezza dei dati ricevuti (verifica che $m_1 \cdot b_1 ^e$ è il primo oggetto che ha ricevuto e così via);
+    \item Se la verifica ha successo per tutti i messaggi, allora produce $(m_ib_i^e)^d$, ovvero la firma. 
+\end{itemize}
+
+\noindent La probabilità che $B$ firmi il messaggio anomalo, supponendo che ve ne sia uno nella lista di messaggi spediti da $A$, è $\frac{1}{l}$. Se $A$ invia più di un messaggio anomalo, $B$ se ne accorge subito.
+\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

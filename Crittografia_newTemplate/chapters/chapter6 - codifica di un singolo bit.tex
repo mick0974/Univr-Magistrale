@@ -1,0 +1,230 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Codifica di un singolo bit e di sequenze di bit}
+\labch{chapter6}
+
+Supponiamo che Alice voglia usare un crittosistema a chiave pubblica per inviare a Bob 1 bit di informazione. A prima vista questa disposizione può sembrare intrinsecamente non sicura, in quanto tutto quello che deve fare un attaccante è cifrare i due possibili plaintext $m = 1$ e $m = 0$ e confrontarli con il cyphertext inviato da Alice. In generale, in ogni crittosistema in cui il pool di possibili messaggi è piccolo, tutto quello che deve fare un attaccante è cifrare tutte le possibilità e confrontarle con cyphertext inviato. 
+
+\section{Crittosistema di Goldwasser-Micali}
+La \textbf{cifratura probabilistica} è stata inventata da Goldwasser e Micali per aggirare questo problema. L'idea è che Alice scelga un plaintext $m$ e una stringa casuale di dati $r$ che andrà a cifrare con la chiave pubblica di Bob. Idealmente, poiché $r$ potrebbe variare su tutti i suoi possibili valori, il cyphertext $(m, r)$ varierà casualmente su tutti i possibili cyphertext generabili. Più precisamente, per ogni $m_1, m_2$ fissati e per un $r$ variabile, i cyphertext $E(m_1, r)$ e $E(m2, r)$ dovrebbero essere indistinguibili. Ovviamente per Bob non è necessario recuperare l'intero messaggio $(m, r)$ ma solamente $m$, quando decodifica.
+
+A partire da questa idea, Goldwasser e Micali hanno creato un schema che, sebbene impratico in quando codifica un bit per volta, è semplice da descrivere e analizzare. Lo scema si basa sulla difficoltà del seguente problema:
+
+\begin{definition}[Problema del residuo quadratico]
+Siano \(p, q\) due numeri primi segreti di $k/2$ bit ciascuno e sia \(n = pq\) pubblico. Per un dato numero \(a\), determinare se \(a\) è un quadrato modulo \(n\), ovvero determinare se esiste un intero \(x\) tale per cui \(x^2 \equiv a \pmod n\).
+\end{definition}
+
+\noindent Bob, che conosce la fattorizzazione di $n$, può risolvere il problema molto facilmente in quanto 
+\begin{align*}
+    a \text{ è un quadrato modulo } n \Longleftrightarrow \left( \frac{a}{p}\right) = 1 \land \left( \frac{a}{q}\right) = 1 
+\end{align*}
+
+\noindent Un attaccante invece ha molta più difficoltà in quanto conosce solo il valore $n$. Il massimo che può fare è calcolare $\left(\frac{a}{n}\right)$, ma questo non dice se $a$ è un quadrato modulo $n$.
+
+\subsection{Generazione delle chiavi, encryption e decryption}
+
+\textbf{Generazione chiavi}
+\noindent Bob sceglie:
+\begin{itemize}
+    \item $p, q$ primi segreti  di $k/2$ bit.
+    \item $y \in_R Z_n^*$ \underline{non quadrato} con $(\frac{y}{p}) = (\frac{y}{q}) = -1$.
+    \item Pubblica $n = pq$ e $y$.
+\end{itemize}
+
+\noindent \textbf{Encryption}
+\noindent Alice:
+\begin{itemize}
+    \item Sceglie $m \in \{0, 1\}$.
+    \item Sceglie $r \in_R Z_n^*$.
+    \item Usa la chiave pubblica $(n, y)$ per calcolare:
+    \begin{align*}
+        c = \begin{cases}
+                r^2 \pmod n & \text{ se } m=0\\
+                yr^2 \pmod n & \text{ se } m=1
+        \end{cases}
+    \end{align*}
+    \item Invia $c$ a Bob.
+\end{itemize}
+
+\noindent \textbf{Decryption}
+\noindent Bob decifra il messaggio:
+\begin{align*}
+    m = \begin{cases}
+                0 \pmod n & \text{ se } \left(\frac{c}{p} \right) = \left(\frac{c}{q} \right) = 1\\
+                1 \pmod n & \text{ se } \left(\frac{c}{p} \right) = \left(\frac{c}{q} \right) = -1
+        \end{cases}
+\end{align*}
+
+\noindent Il crittosistema di Goldwasser-Micali funziona come previsto in quanto:
+\begin{align*}
+    \left(\frac{c}{p} \right) = 
+        \begin{cases}
+                \left(\frac{r^2}{p} \right) = \left(\frac{r^2}{p} \right)^2 = 1 & \text{ se } m = 0\\
+                \left(\frac{yr^2}{p} \right) = \left(\frac{y}{p} \right)\left(\frac{r}{p} \right)^2 = \left(\frac{y}{p} \right) = -1 & \text{ se } m = 1
+        \end{cases}
+\end{align*}
+
+\noindent Inoltre, poiché Alice sceglie $r$ random, l'insieme dei possibili valori che un attaccante vede quando Alice cifra $m = 0$ sono tutti i possibili quadrati modulo $n$, mentre quando cifra $m = 1$ sono tutti i possibili numeri $c$ che soddisfano $\left(\frac{c}{n} \right)$ che non sono quadrati modulo $n$.
+
+Questo crittosistema non è pratico, in quanto ogni bit del plaintext viene cifrato con un numero modulo $n$. Affinché sia sicuro, è necessario che un attaccante non sia in grado di fattorizzare $n = pq$ (o risolvere il problema del residuo quadratico), quindi nella pratica $n$ deve essere di almeno $1000$ bit. Quindi se Alice vuole inviare un messaggio di $k$ bit, il cyphertext sarà di $1000k$ bit.
+
+\subsection{Dimostrazione di correttezza del crittosistema}
+Supponiamo che esista un algoritmo $A$ che dati in input il cyphertext $c$ e la chiave pubblica $(n, a)$ ritorna il bit $b$ in tempo polinomiale, quando possiamo affermare che questo algoritmo è riuscito ad attaccare il sistema? L'algoritmo attacca il sistema quando indovina, quindi potrebbero esserci casi in cui indovini e non indovini. Quale deve essere allora la probabilità $Pr[A\_indovina]$ affinché attacchi?
+
+L'attacco funziona ovviamente se $Pr[A\_indovina] > \frac{1}{2}$, ovvero ha più probabilità di aver successo rispetto allo sparare a caso. Ma allo stesso modo ha successo anche quando $Pr[A_indovina] < \frac{1}{2}$. Perché? Prendiamo il caso estremo in cui $Pr[A\_indovina] = 0$. L'attaccante, sapendo che l'algoritmo sbaglia sempre, deve solamente scegliere il valore opposto a quello che $A$ ritorna per portare il successo dell'attacco a $1$.
+
+Nel nostro caso, dunque, diciamo che l'attacco ha successo se la sua probabilità (di successo) è \textbf{diversa} da $\frac{1}{2}$. Quanto però deve allontanarsi da $\frac{1}{2}$? La differenza deve essere tale da permettere di accorgersi che con $A$ si indovina di più rispetto allo sparare a caso. Nella nostra vita siamo in grado, al massimo, di effettuare un numero di esperimenti polinomiale, quindi la quantità deve essere polinomiale. 
+La formula di correttezza/sicurezza del crittosistema può essere così riscritta:
+\begin{align*}
+    \exists c \ \forall \bar{k} \ \exists k > \bar{k} \ \left|Pr[attacco\_ha\_successo] - \frac{1}{2}\right| < k^{-c}
+\end{align*}
+
+\noindent Passiamo ora alla dimostrazione di correttezza.\\
+\begin{proof}
+Supponiamo per assurdo che il crittosistema non sia sicuro. Questo significa che la formula di sicurezza non vale e quindi:
+\begin{align*}
+    \exists c \ \forall \bar{k} \ \exists k > \bar{k} \ \left|Pr[attacco\_ha\_successo] - \frac{1}{2}\right| \ge k^{-c}
+\end{align*}
+La probabilità che l'attaccante ha di avere successo, ovvero che la sua decodifica gli permetta di ottenere il messaggio originale, è
+\begin{align*}
+    Pr[attacco\_ha\_successo] > \frac{1}{2} + k ^{-c}
+\end{align*}
+
+Supponiamo di disporre di un algoritmo $A$ che ha come probabilità di successo $3/4$. 
+Se facessimo $100$ esperimenti indipendenti tra loro per stimare il plaintext, ci spetteremmo che $75$ di questi diano il bit corretto. Quindi il valore corretto sarebbe quello che compare più volte, con alta probabilità beccheremmo il bit corretto.
+
+Tornando alla nostra probabilità effettiva, ci potremmo aspettare che $\frac{1}{2} + k^{-c}$ degli esperimenti ritorni la risposta corretta. Più $k^{-c}$ è piccolo, più esperimenti è necessario fare per avere una buona probabilità. Quindi dato $k^{-c}$, dobbiamo capire qual è il numero di esperimenti che bisogna fare per poter avere una buona garanzia per dire che il valore visto più volte è la risposta corretta. \\
+
+\noindent I problemi da risolvere sono due:
+\begin{enumerate}
+    \item Capire come, dato il cyphertext, costruire una serie di esperimenti indipendenti sulla macchina $A$, ognuno dei quali ha una sua probabilità di dare la risposta corretta;
+    \item Dato $k^{-c}$, capire quanti esperimenti fare.
+\end{enumerate}
+
+\noindent Partiamo dal secondo punto. In modo molto semplicistico, nella statistica si fanno degli esperimenti e sulla base di questi si cerca di dedurre qualcosa circa il mondo che si sta osservando. Poiché è impossibile osservare l'intero mondo, se ne osservano solo dei pezzi. Da questi pezzi si cerca di stimare come si comporta effettivamente il mondo. Quando facciamo queste stime, sappiamo i dati li stiamo campionando da alcune variabile casuali (quando peschiamo una persona, il risultato dell'esperimento con quella persona è una variabile casuale). Di queste variabili casuali possiamo osservare più cose, e possiamo anche cercare di calcolare qual è la probabilità che il risultato che osserviamo da un insieme di variabili casuali sia effettivamente la rappresentazione corretta della realtà, da cui queste variabili casuali sono state campionate. Si cerca quindi di trovare delle disequazioni sulle provabilità di ottenere qualcosa. Quello che interessa a noi in questo caso è il limite di Chernoff.
+
+\begin{definition}[Limite di Chernoff per valori binari]
+Siano $x_1, ..., x_n$ variabili casuali binarie indipendenti con probabilità di successo $P > \frac{1}{2}$. La probabilità che più della metà di queste variabili valga $1$ è
+\begin{align*}
+    P = \sum^n_{i = \frac{n}{2}+1}\left(\binom{n}{i}p^i(1-p)^{n-i} \right)
+\end{align*}
+\end{definition}
+
+Affinché più della metà degli elementi abbiano successo ($1$), il numero di esperimenti $i$ che hanno avuto successo possono essere $\frac{n}{2}+1$ oppure $\frac{n}{2}+2$ oppure $\frac{n}{2}+3$ oppure eccetera. Li sommiamo tutti. Quindi quello che abbiamo è la probabilità che esattamente $i$ elementi hanno successo. Per sapere la probabilità che esattamente $i$ elementi hanno successo, dobbiamo scegliere un sottoinsieme di $i$ variabili e vedere qual è la probabilità che esattamente quel sottoinsieme di variabili ha successo (e le restanti no); è un'unione di eventi disgiunti, che sono tanti quanti i sottoinsiemi di $i$ variabili, quindi $\binom{n}{i}$. Deciso quali sono le variabili che hanno successo e quali no, la probabilità che le $i$ variabili di successo abbiano successo è $p^i$, mentre la probabilità che le altre non siano di successo è $(1-p)^{n-i}$ ($(1-p)$ alla numero delle altre variabili).
+
+Chernoff ha fatto uno studio dal quale si ottiene che 
+\begin{align*}
+    P \ge 1 - e^{-2n \left( P - \frac{1}{2} \right)^2}
+\end{align*}
+\noindent Questa formula dice che la probabilità che più della metà degli elementi dia $1$ è 
+esponenzialmente vicina a $1$, dove per esponenzialmente si intende esponenzialmente in $n$, dove
+\begin{align*}
+    \left( P - \frac{1}{2} \right)^2 = k^{-2c}
+\end{align*}
+\noindent e quindi probabilità di errore è 
+\begin{align*}
+    e^{-2nk^{-2c}}
+\end{align*}
+\noindent Vogliamo rendere questa probabilità molto piccola, ma, come si può osservare, questa si abbassa esponenzialmente al crescere di $n$. Supponiamo di voler rendere
+\begin{align*}
+    1-e^{-2nk^{-2c}} \ge 1-\frac{1}{e^k}
+\end{align*}
+
+Quindi 
+\begin{align*}
+    \frac{1}{e^k} &\ge \frac{1}{e^{2nk^{-2c}}}\\
+    e^k &\le e^{2nk^{-2c}}\\
+    e^k &\le e^{\frac{2n}{k^{2c}}}\\
+    2n &\ge k^{1+2c}\\
+    n &\ge \frac{k^{1+2c}}{2}
+\end{align*}
+\noindent Il numero di esperimenti da fare è polinomiale in $k$. Questo ci dice che se il vantaggio che abbiamo è polinomiale in qualche security parameter, riusciamo a ottenere una probabilità di errore esponenzialmente piccola nel security parameter scegliendo una quantità di esperimenti polinomiale nel security parameter. 
+
+Noi partiamo dall'idea che tutto ciò che è polinomiale è facile, per cui diciamo che un sistema è attaccato nel momento in cui c'è un algoritmo polinomiale in grado di attaccarlo. Con una quantità polinomiale di esperimenti riusciamo effettivamente ad attaccare il sistema. 
+Visto che la nostra ipotesi dice che non esistono algoritmi probabilistici polinomiali in grado di risolvere il problema, e visto che qui abbiamo trovato un algoritmo probabilistico polinomiale in grado di risolvere il problema diciamo che il protocollo dovrebbe essere sicuro, in quanto siamo arrivati ad un ASSURDO.\\
+
+\noindent Passiamo ora la primo punto. Supponiamo che la probabilità di successo sia polinomiale. Come creiamo gli esperimenti indipendenti? Prendiamo come input un input $z$ tale per cui
+\begin{align*}
+    \left( \frac{z}{n}\right) = 1
+\end{align*}
+\noindent Vogliamo capire se $z$ è quadrato o no. Scegliamo
+\begin{align*}
+    R_1, ..., R_n \in_R Z_n^*
+\end{align*}
+\noindent Calcoliamo 
+\begin{align*}
+    w_i = zR_i^2
+\end{align*}
+\noindent Sia
+\begin{align*}
+    b_i = A(w_i)
+\end{align*}
+\noindent Cosa stiamo facendo? Prendiamo il cyphertext $z$, che non sappiamo se è una codifica di uno $0$ o di un $1$, e lo moltiplichiamo per un quadrato a caso $R_i^2$. A questo punto eseguiamo l'algoritmo $A$ sui vari esperimenti e scegliamo come valore corretto quello che si ripete di più tra i vari $b_i$ risultanti.
+
+Partiamo da uno $z$, che non sappiamo se è un quadrato o un non quadrato, quindi non sappiamo se è una codifica di uno $0$ o di un $1$. Il nostro obiettivo è creare $n$ esperimenti indipendenti da dare in pasto ad $A$ per farci dire se $z$ è un quadrato oppure no. Sappiamo che $A$ ha successo con probabilità $1/2 + k^{-c}$, quindi il modo in cui creiamo gli esperimenti indipendenti è trasformando $z$, che è un quadrato o un non quadrato scelto a caso, in un oggetto che è sempre scelto a caso con una misura di probabilità diversa; è come se fosse stato codificato $n$ volte in maniera indipendente ognuna delle $n$ volte. Moltiplicando $z$ per un quadrato a caso sto costruendo un nuovo quadrato o non quadrato scelto a caso. Quindi gli $n$ esperimenti che facciamo sono effettivamente indipendenti, è come se lo stesso bit fosse stato codificato $n$ volte indipendentemente. Su ognuna di queste codifiche lanciamo l'algoritmo di attacco $A$, che cerca di dirci se il plaintext è $0$ o $1$ con una probabilità di successo $1/2 + k^{-c}$. Abbiamo quindi creato lo scenario che volevamo, dove facciamo $n$ esperimenti indipendenti. La risposta che prenderemo sarà quella che occorre il più delle volte. 
+
+Questo ragionamento è corretto per creare $n$ esperimenti indipendenti da dare in pasto ad $A$ per farci dire il valore di $z$? 
+Supponiamo che $A$ abbia una probabilità di successo $Pr[A\_successo] = 51/100$, dove:
+\begin{itemize}
+    \item Il successo sui quadrati è $40/100$;
+    \item Il successo sui non quadrati è $62/100$.
+\end{itemize}
+\noindent La probabilità totale è quindi:
+\begin{align*}
+    Pr[A\_successo] = \frac{1}{2} \cdot \frac{40}{100} + \frac{1}{2} \cdot \frac{62}{100} = \frac{51}{100}
+\end{align*}
+
+\noindent Se diamo in input un cyphertext scelto \textbf{a caso}, la probabilità di indovinare quel cyphertext è $51/100$. Ma noi stiamo dando un cyphertext a caso alla macchina $A$? No, in quanto il cyphertext lo stiamo scegliendo a caso tra le codifiche di $0$ \textbf{oppure} tra le codifiche di $1$, non lo stiamo prendendo a caso da entrambe. La distribuzione che stiamo usando in input su $A$ non è quella che abbiamo usato per definire che l'algoritmo ha successo con probabilità $51/100$. L'input deve essere scelto a caso tra tutte le codifiche di numeri con simbolo di Jacobi $1$. Infatti in questo caso:
+\begin{itemize}
+    \item Se passiamo in input una codifica di uno $0$, gli esperimenti stanno passando ad $A$ sempre un quadrato a caso. L'algoritmo ritornerà solo $40/100$ volte che l'input è un quadrato, quindi sbaglierà dicendo che l'input è un non quadrato;
+    \item Se passiamo in input una codifica di un $1$, gli esperimenti stanno passando ad $A$ sempre un non quadrato a caso. L'algoritmo ritornerà $62/100$ volte che l'input è un non quadrato, quindi ritornerà il valore corretto dicendo che l'input è un non quadrato.
+\end{itemize}
+
+\noindent L'algoritmo che abbiamo costruito ritornerà sempre che l'input passato è un non quadrato, con questa divisione della probabilità. Noi non sappiamo che algoritmo $A$ abbiamo a disposizione quando ci viene detto che ha probabilità $51/100$. 
+
+L'approccio che abbiamo usato per la creazione degli esperimenti indipendenti non è corretto, perché non fornisce ad $A$ gli input secondo la misura di probabilità che $A$ si aspetta quando diciamo che ha una certa probabilità di successo (come dimostrato dal controesempio creato). \\
+
+\noindent Quando replichiamo un esperimento, questo consiste nel fornire un input ad una macchina e osservarne l'output. La macchina ha un determinato comportamento, solitamente definito nel seguente modo: se l'input ha una determinata distribuzione di probabilità, allora l'output ne ha un'altra. Nel costruire l'esperimento dobbiamo assicurarci che l'input abbia la distribuzione di probabilità giusta, quella che si aspetta l'algoritmo.
+
+Vediamo ora come costruire gli esperimenti in modo corretto. $A$ si aspetta un input che sia distribuito uniformemente tra gli elementi con simbolo di Jacobi $1$, ma la nostra $z$ è un quadrato o un non quadrato. Dobbiamo far si che i $W_i$ sia distribuiti uniformemente solo tra i quadrato o solo tra i non quadrati. In particolare, a prescindere da cos'è $z$, i $w_i$ devono essere distribuiti uniformemente con probabilità $1/2$ tra i quadrati e $1/2$ tra i non quadrati. Per generare un oggetto distribuito uniformemente tra gli elementi con simbolo di Jacobi $1$, potremmo prima lanciare per decidere se distribuirlo tra i quadrati o i non quadrati e poi distribuirlo tra i non quadrati e i non quadrati. Questo si può fare similmente lanciando una moneta per decidere se distribuirlo tra gli oggetti che hanno la stessa quadraticità di $z$ o tra quelli con la quadraticità opposta. Tra tutti gli elementi che abbiamo a disposizione, ne abbiamo uno che permetta di cambiare la quadraticità di $z$? Lo schema di Micali, nella chiave pubblica, contiene un non quadrato. Possiamo quindi, in base al risultato del lancio, moltiplicare o meno moltiplicare $W_i$ per $y$.\\
+
+\noindent Il nuovo algoritmo diventa così:
+\begin{itemize}
+    \item Siano $R_1, ..., R_n \in_R Z_N^*$ e siano $s_1, ..., s_n \in \{0, 1\}$;
+    \item Per ogni $i$ allora:
+    \begin{align*}
+        w_i = \begin{cases}
+                zR_i^2 & \text{ se } s_i = 0\\
+                yzR_i^2 & \text{ se } s_i = 1\\
+        \end{cases}
+    \end{align*}
+    \item Sia $b_i = A(W_i)$. Non posso prendere come risultato \textbf{finale} i $b_i$ maggiori, in quanto $b_i$ è il risultato al problema trasformato $w_i$, ma devo ripristinare la quadraticità iniziale di $z$:
+    \begin{align*}
+        \forall i \ b' = \begin{cases}
+                b_i & \text{ se } s_i = 0\\
+                \bar{b_i}  & \text{ se } s_i = 1 \text{ (prendo l'opposto di $b_i$)}
+        \end{cases}
+    \end{align*}
+\end{itemize}
+
+\noindent Abbiamo dimostrato che un attacco all'algoritmo di codifica di Goldwasser-Micali si traduce in un algoritmo in grado di calcolare la quadraticità di un numero, quindi che calcola il residuo quadratico. In realtà non lo abbiamo dimostrato ancora completamente, manca un piccolo dettaglio. L'algoritmo che calcola il residuo quadratico prende in input $z$ e ritorna $0$ o $1$. Il nostra algoritmo $A$ prende in input $z$ e $y$ e ritorna $0$ o $1$. Per funzionare $A$ necessita di un non quadrato con simbolo di Jacobi $1$, quindi non abbiamo costruito un algoritmo che prende solo $z$. 
+
+Per poter usare $A$ per risolvere il problema del residuo quadratico dovremmo fare in modo che $A$ si calcoli $y$ internamente. Conosciamo algoritmi in grado di calcolare non quadrati con simbolo di Jacobi $1$ senza conoscere la fattorizzazione di $n$? Il non quadrato pubblicato nella chiave pubblica è stato costruito prendendo un oggetto a caso, verificandone l'appartenenza a $Z_n^*$ e calcolandone il simbolo di Legendre rispetto a $p$ e $q$, i due fattori di $n$. Con la fattorizzazione di $n$ siamo capaci di costruire $y$, ma senza?
+
+E se noi prendessimo un $y$ a caso di $Z_n?*$ e verificassimo se la macchina $A$ funziona? Ma come facciamo a sapere se $A$ sta effettivamente dando i risultati corretti? Potremmo fare un esperimento di questo genere:
+\begin{itemize}
+    \item Prendiamo $x \in_R Z_n^*$ e $s \in_R \{0, 1\}$
+    \item Calcoliamo $w$ tale che 
+    \begin{align*}
+        w = \begin{cases}
+                x^2 & \text{ se } s=0\\
+                yx^2 & \text{ se } s=1\\
+        \end{cases}
+    \end{align*}
+    \item Sia $b$ la risposta di $A(w)$, allora la macchina funziona con $y$ se $b=s$.
+\end{itemize}
+
+\noindent In questo modo passiamo alla macchina un quadrato a caso se $s = 0$ o un non quadrato se $s=1$. Se noi passiamo un quadrato alla macchina e questa dice quadrato, allora ha indovinato; se noi passiamo un non quadrato e la macchina ritorna non quadrato allora ha indovinato. Se la macchina indovina con una probabilità che si discosta significativamente da $1/2$ allora basta fare un numero di esperimenti dato dal limite di Chernoff. Se indovina la maggior parte delle volte allora funziona. Questo vale solo se $y$ è un quadrato.
+
+Se $y$ è un quadrato però stiamo testando quadrato in entrambi i casi ($y_{quadrato} * y^2 = quadrato$), la macchina si comporta quindi sempre allo stesso modo. Quando la macchina funziona, avvero le stiamo passando effettivamente un non quadrato? Quando il comportamento statistico della macchina sugli $x^2$ è diverso da quello sugli $yx^2$. Se le passiamo un non quadrato, stiamo testando la macchina effettivamente su quadrati e non quadrati, se le passiamo un quadrato la stiamo testando solo su quadrati, Quindi ce ne accorgiamo se stiamo testando la macchina con $y$ quadrato, in quanto sappiamo che $A$, di fronte ad un $y$ non quadrato, indovina quadrati da non quadrati con vantaggio polinomiale. 
+\end{proof}
+

@@ -1,0 +1,386 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Generatori di bit pseudocasuali}
+\labch{chapter9}
+
+Esiste un teorema generico che dice che ogni funzione one-way ammette hard core predicate. Se esistono le funzioni one-way allora esistono algoritmi per il lancio della moneta nel pozzo. Abbiamo dimostrato che gli algoritmi di lancio della moneta non esistono, in quanto c'è sempre un problema di sincronizzazione dei messaggi, ovvero esiste sempre un ultimo messaggio che può essere non spedito che impedisce all'altro agente di vedere il risultato del lancio. Si algoritmi per il lancio della moneta nel pozzo abbiamo visto quello basato sul residuo quadratico e quello basato sul logaritmo discreto.
+
+Da quello basato sul logaritmo discreto abbiamo ricavato che in generale l'esistenza di funzioni one-way è la condizione sufficiente per l'esistenza di algoritmi di lancio nel pozzo.
+
+Abbiamo dimostrato che la funzione one-way $g^x$ ammette hard core predicate $x < \frac{p-1}{2}$ in diversi passi:
+\begin{itemize}
+    \item Calcolare l'hard core predicate della funzione one-way equivale a calcolare la radice quadrata principale di un numero in $Z_p^*$. Quando abbiamo un quadrato (che sappiamo esserlo tramite il simbolo di Legendre), questo ammette due radici: quella aritmetica e il suo opposto. Ognuna di queste radici quadrata ha il suo logaritmo discreto, solo che non sappiamo quale delle due ha il logaritmo discreto più basso. Quindi il test del predicato binario ci permette capire quale dei due logaritmi discreti è nella prima metà e di conseguenza quale delle due radici è la principale.  Se abbiamo un sistema che calcola la radice quadrata principale di un numero, dato $x$ calcoliamo $x^2$ e lo passiamo in input al sistema: se ci ritorna il numero iniziale, allora $x$ è la radice quadrata principale, altrimenti basta prendere il suo opposto. 
+    
+    Abbiamo usato il calcolo della radice quadrata principale come base per mostrare che se esiste un algoritmo per l'hard core predicate allora esiste un algoritmo per il calcolo del logaritmo discreto (totale). Se noi partiamo col dire che calcolare il logaritmo discreto è difficile, allora deve essere difficile anche calcolare la radice quadrata principale e di conseguenza il calcolo di questo predicato binario.  
+    
+    Abbiamo scritto un algoritmo che calcola il logaritmo discreto di un numero partendo dal bit meno significativo e riconducendosi a calcolare il logaritmo discreto di un numero il cui logaritmo discreto è lo shift a destra dei bit del logaritmo discreto del numero originale. 
+    Il logaritmo discreto di $1$ è banalmente $0$; il bit meno significativo del logaritmo discreto di $y$ è facile da calcolare con il simbolo di di Legendre. Se il bit è $1$ lo possiamo rendere $0$ dividendo per $g$ e ottenendo un nuovo numero il cui logaritmo discreto ha il bit meno significativo a $0$, cioè è un quadrato. Calcolando la radice quadrata principale del nuovo numero calcoliamo la radice discreta che è la divisione per $2$ del logaritmo discreto per $y$. Divisione per $2$ coincide con lo spostamento a destra di tutti i bit logaritmo discreto di $y$. A questo punto abbiamo il logaritmo discreto del numero ottenuto shiftando a destra tutti i bit del logaritmo discreto. Lo rishftiamo a sinistra moltiplicando per $2$ e aggiungiamo il bit meno significativo ottenendo il logaritmo discreto finale del numero $y$.
+    
+    \item Abbiamo detto che siamo in grado di calcolare il logaritmo discreto tramite il logaritmo che calcola la radice quadrata principale, ma noi non abbiamo un algoritmo per il calcolo della radice quadrata principale, ne abbiamo uno che la calcola a meno di un certo errore $\epsilon$. Se l'errore con cui calcoliamo la radice quadrata principale è $\epsilon$, qual è la probabilità di ottenere la risposta corretta con l'algoritmo descritto sopra? $(1-\epsilon)^k$, perché  calcolare $k$ radici quadrate principali e ogni calcolo deve dare la risposta corretta. 
+
+    Vogliamo che l'errore finale sia non troppo alto, quindi $\epsilon$ deve essere molto piccolo. Per il teorema di analisi, se $\epsilon$ è esponenzialmente piccolo nel security parameter, allora la probabilità di successo è almeno $\frac{1}{2}$. Con questa probabilità abbiamo il vantaggio che reiterando più volte, in media dopo $2$ tentativi abbiamo la risposta corretta. 
+
+    \item In realtà quando ci dicono che qualcuno è riuscito a rompere il protocollo di lancio della moneta, questo qualcuno ci dice che abbiamo in mano un algoritmo in grado di indovinare il predicato binario di qualche cosa con un vantaggio polinomiale rispetto ad $\frac{1}{2}$. Il nostro obiettivo è costruire un qualcosa che abbia un errore esponenzialmente piccolo. Per farlo basta costruire tanti esperimenti indipendenti per l'algoritmo $B$. Con esperimenti indipendenti intendiamo un problema nuovo che è distribuito esattamente secondo la distribuzione di probabilità che si aspetta l'algoritmo $B$ per dire che indovina con probabilità $\frac{1}{2} + \eta$. Questi esperimenti indipendenti devono essere tali che dalla risposta al nuovo esperimento sia possibile risalire alla risposta del problema originale. 
+
+    Dobbiamo costruire un nuovo input $y'$ per la macchina $B$ tale per cui dalla risposta che diamo ad $y'$ siamo in grado di dare la risposta per $y$. Per costruire l'esperimento indipendente scegliamo un quadrato a caso e lo moltiplichiamo per $y$, ottenendo un quadrato a caso. L'algoritmo $B$ sarà in grado di calcolare il logaritmo discreto di $y'$ facilmente. Il quadrato a caso lo abbiamo costruito in modo da conoscere noi stessi il suo logaritmo discreto. Prima abbiamo calcolato il suo logaritmo discreto nella prima metà e poi abbiamo costruito il nuovo oggetto. L'oggetto lo vogliamo costruito in maniera tale che dalla risposta, ovvero dalla radice quadrata di questo oggetto, siamo in grado di trovare la radice quadrata principale di $y$.
+
+    Il lemma che abbiamo dimostrato dice che questa cosa la sappiamo fare solo quando $x+2r < p-1$, ovvero quando nel calcolare i quadrati non andiamo oltre $p-1$ e non ci serve usare l'operazione di modulo (a livello di esponenti stiamo solo facendo un'operazione aritmetica). 
+
+    Se $x+2r$ è sufficientemente piccolo riusciamo ad ottenere la risposta corretta. Ma a noi interessa ottenere sempre la risposta corretta. Più $x$ è piccolo, più è probabile scegliere un $r$ che funzioni.
+
+    Abbiamo definito cosa significa per noi "essere piccolo": abbiamo diviso l'intervallo dei possibili logaritmi discreti in un numero di parti che non conosciamo $t$. Supponiamo che 
+    $x$ stia nella prima delle $t$ parti e ci chiediamo quale sia la probabilità di trovare un $r$ che vada bene per il lemma. Questa probabilità è equivalente alla probabilità di avere un $r$ che stia in tutti gli intervalli eccetto l'ultimo. Solo quando  $r$ sta nell'ultimo intervallo, rischiamo di uscire dal limite se aggiungiamo la nostra $x$.
+    La probabilità di andare in tutti gli intervalli eccetto l'ultimo è $\frac{t-1}{t}$. A questo punto abbiamo potuto calcolare qual è la probabilità di ottenere la risposta corretta all'esperimento completo: trasformare il problema, prendere la risposta al problema trasformato, dividerla per $g^r$ per ottenere la risposta al problema originale.
+
+    La probabilità che abbiamo trovato è un limite inferiore in quanto $\frac{t-1}{t}$ non comprende anche quegli $r$ appartenenti all'ultimo intervallo che andrebbero comunque bene. Al fine di usare il teorema di Chernoff e poter fare un numero polinomiale di esperimenti per avere la probabilità esponenzialmente vicina ad $1$ di avere la risposta corretta, la nuova probabilità deve essere polinomialmente distante da $\frac{1}{2}$. 
+
+    Scegliamo quindi un polinomio che ci vada bene, tipo $k^{-2c}$, e verifichiamo se riusciamo a trovare una soluzione alla disequazione che si genera con la probabilità di successo dell'esperimento. La soluzione ci determina il numero (polinomiale in $k$) minimo di intervalli in cui dobbiamo dividere il numero di logaritmi discreti. Se non ci riusciamo, non siamo in grado di dimostrare che abbiamo un vantaggio polinomiale. 
+
+    In questo modo, con una quantità polinomiale in $k$ di intervalli, abbiamo la garanzia di poter essere polinomialmente distante da $\frac{1}{2}$ con il nuovo esperimento. Grazie a questo possiamo avere la risposta corretta con probabilità esponenzialmente vicina ad $1$ e quindi possiamo arrivare a calcolare il logaritmo discreto con probabilità almeno $\frac{1}{2}$.
+
+    Ma se $x$ non si trova nel primo intervallo e qualcuno ci dice dove sta? Possiamo moltiplicare $y$ per una quantità opportuna tale per cui il nuovo logaritmo discreto sta nel primo intervallo. 
+
+    Ma se non sappiamo in che intervallo si trova $x$? Grazie al fatto che il numero di intervalli è polinomiale in $k$, possiamo provare la nostra ipotesi in ciascun intervallo. Prima o poi la proveremo in quello corretto e con probabilità $\frac{1}{2}$ avremo in mano il nostro logaritmo discreto. Se una volta provati tutti li intervallo non avremo trovato il logaritmo discreto, ritentiamo un'altra volta (con probabilità $\frac{1}{2}$ potremo non trovarlo). In media con $2$ tentativi ce la facciamo. 
+\end{itemize}
+
+\section{Bit pseudocasuali}
+Vogliamo costruire una sequenza di bit che sia equivalente all'aver lanciato una moneta ogni volta. All'interno di un computer non vi è nulla di casuale, è tutto deterministico. Se conosciamo lo stato del pc, possiamo prevedere tutto quello che farà. Vogliamo fare in modo che il pc possa generare una serie di bit in modo deterministico che appaiano casuali a chi li osserva (per questo sono chiamato pseudocasuali).
+
+La nostra generazione di bit pseudocasuali non può essere un processo semplice che costruisce qualcosa distribuito uniformemente, ma deve essere un qualcosa che produce una sequenza di bit tale che nessuno con potenza di calcolo probabilistica polinomiale sia in grado di capirla. 
+
+Vogliamo un sistema PRSG (Pseudo Random Sequence Generator) che dato in input un seme di dimensione $k$ produce in output una sequenza di bit di lunghezza $l$, con $l>k$, tale che nessuno che osserva la sequenza riesca a dire che non è propriamente casuale. Il seme è scelto in maniera realmente casuale. Questi generatori da un seme iniziale producono una sequenza di bit maggiore la cui difficoltà di identificazione cresce al crescere di $k$. Più bit usiamo per il seme iniziale, più difficile è capire che la sequenza generata non è casuale. 
+
+I generatori che andremo a costruire li possiamo vedere come moltiplicatori di casualità: a partire da una casualità vera, il seme, andremo a generare una casualità più grande rispetto a quella originale. I bit che genereremo saranno tali per cui nessun algoritmo PPT riesca a trovare regolarità al suo interno. Della regolarità esiste, noi saremmo in grado di rappresentare la sequenza in maniera più compatta, ma nessun algoritmo PPT deve essere in grado di trovare questa regola. 
+
+
+\noindent Cosa vuol dire generare bit pseudocasuali?  Se riceviamo $b_0, b_1, ..., b_l$ facciamo fatica ad indovinare $b_{l+1}$, ovvero lo indoviniamo con vantaggio più piccolo di ogni polinomio. Quindi la probabilità  $P[\Sigma]$ di:
+\begin{itemize}
+    \item Prendiamo il seme $S \in \{0, 1\}^k$ e la sequenza $b_1, ..., b_l, b_{l+1}$ generata dal generatore $G(S)$;
+    \item Prendiamo $b$ ottenuto dall'algoritmo $A(b_1, ..., b_l)$, che tenta di predire il bit successivo a partire dalla sequenza $(b_1, ..., b_l$;
+    \item Verifichiamo se $b == b_{l+1}$.
+\end{itemize}
+
+\noindent deve essere:
+\begin{align}
+    \left|P[\Sigma] - \frac{1}{2} \right| < k^{-\omega(1)}
+\end{align}
+
+\noindent Questa formula determina quando il generatore pseudocasuale è corretto, ovvero quando un attaccante non è capace di indovinare il bit successivo conoscendo i bit precedenti. 
+
+\section{Generazione di bit pseudocasuali basata sulla difficoltà del logaritmo discreto}
+Vediamo ora un algoritmo per la generazione di bit pseudocasuali basato sulla difficoltà del logaritmo discreto:
+\begin{enumerate}
+    \item Fissiamo $p, g$;
+    \item Prendiamo il seme $x \in_R \{0, p-1\}$;
+    \item Definiamo:
+        \begin{center}
+            \begin{tabular}{ c c c c c c }
+              $a_0$ & $a_1$ & $a_2$ & $a_3$ & $...$ & $a_l$\\
+              \vspace{1cm}
+              $x$ & $g^x$ & $g^{g^x}$ & $g^{g^{g^x}}$ & $...$ & $g^{g^{.^{.^{g^x}}}}$  
+            \end{tabular}
+        \end{center}
+    In maniera compatta questo può essere riscritto come:
+    \begin{align*}
+         \begin{cases}
+            a_{i+1} &= g^{a_i}\\
+            a_0 &= x
+        \end{cases}
+    \end{align*}
+
+    Stiamo generando una sequenza di elementi $a_0, a_1, ...$ di $Z_p^*$, dove il primo elemento è il nostro seme, e ogni elemento successivo non è altro che il generatore elevato all'elemento precedente.
+
+    \item Definiamo ora i nostri bit:
+    \begin{center}
+            \begin{tabular}{ c c c c c c }
+              $a_0$ & $a_1$ & $a_2$ & $a_3$ & $...$ & $a_l$\\
+              \vspace{1cm}
+              $x$ & $g^x$ & $g^{g^x}$ & $g^{g^{g^x}}$ & $...$ & $g^{g^{.^{.^{g^x}}}}$\\
+              \vspace{1cm}
+              $b_0$ & $b_1$ & $b_2$ & $b_3$ & $...$ & $b_l$\\
+            \end{tabular}
+        \end{center}
+    dove:
+    \begin{align*}
+         b_i = \begin{cases}
+            0 & \mbox{se } a_i < \frac{p-1}{2}\\ 
+            1 & \mbox{altrimenti}
+        \end{cases}
+    \end{align*}
+
+    \item Ritorniamo la sequenza
+    \begin{align*}
+        b_{l} \ b_{l-1} \ b_{l-2} \ ... \ b_{1} \ b_{0}
+    \end{align*}
+       
+\end{enumerate}
+
+\begin{proof}[Dimostrazione di correttezza]
+    Supponiamo per assurdo che esiste un algoritmo in grado di predire il successivo. Questo algoritmo prende in input una quantità di bit e indovina il bit successivo con un vantaggio che è più grande di qualche polinomio. 
+
+    Supponiamo che dati in input i bit $b_l \ ... \ b_3$ ($l-3$ bit) l'algoritmo riesca ad indovinare il bit $b_2$. 
+
+    Se osserviamo la sequenza notiamo che:
+    \begin{itemize}
+        \item $b_2$ è l'hard core predicate di $a_3$:
+        \begin{align*}
+            a_3 &= g^{a_2}\\
+            b2 &= hcp(a_2)
+        \end{align*}
+        \item $a_2$ è il logaritmo discreto di $a_3$:
+        \begin{align*}
+            a_3 &= g^{a_2}\\
+           DL(a_3) &= DL(g^{a_2}) = a_2
+        \end{align*}
+    \end{itemize}
+
+    \noindent Se noi abbiamo $a_3$, calcolare $b_2$ vuol dire calcolare l'hard core predicate di $a_3$. Dimostriamo ora che se abbiamo un algoritmo che indovina $b_2$ a partire dalla sequenza $b_l \ ... \ b_3$ con vantaggio polinomiale, allora abbiamo un algoritmo che calcola l'hard core predicate con vantaggio polinomiale. 
+
+    Preso in input il numero, lo vediamo come se fosse $a_3$ e generiamo la sequenza fino ad $a_l$. Generati questi oggetti, possiamo costruire la sequenza $b_l \ ... \ b_3$. Applichiamo l'algoritmo che indovina $b_2$. L'algoritmo indovina con vantaggio polinomiale rispetto a $\frac{1}{2}$, cioè abbiamo calcolato l'hard core predicate di $a_3$ con vantaggio polinomiale rispetto a $\frac{1}{2}$.
+
+    L'eventuale previsione del bit successivo diventa il calcolo dell'hard core predicate (fino all'ottenimento del seme). L'algoritmo che abbiamo costruito restituisce i bit alla rovescia in quanto altrimenti il bit successivo della sequenza sarebbe stato il risultato di una funzione facile da calcolare. Noi abbiamo usato una funzione difficile da calcolare sui semi per dire che non riusciamo a indovinare il bit successivo. Restituirli alla diritta equivale a calcolare una funzione one-way, che sappiamo calcolare, per ottenere il bit successivo.
+
+    Restituendo i bit alla diritta questa dimostrazione non avrebbe funzionato. Ma questo significa che non è possibile restituire i bit alla diritta? No, se noi non siamo capaci di trovare una dimostrazione per qualcosa, non significa che quel qualcosa sia falso. La nostra dimostrazione del protocollo alla rovescia si basa sul fatto che conoscendo i semi non siamo in grado di calcolare $b_2$. Se non siamo in grado di calcolarlo conoscendo i semi, a maggior ragione non siamo in grado di calcolarlo conoscendo i bit. Se conosciamo solo bit, siamo molto più in difficoltà, ma questa dimostrazione non ci permette di catturare questo concetto. 
+
+
+    Definizione con distinguisher:
+    \begin{align*}
+        \forall D \in PPT \ \forall l&\\
+        P_K^{D, G} &= Pr[S \in_R \{0, 1\}^k; b_0 \ ... \ b_l \leftarrow G(S); D(b_1 \ ... \ b_l) == 1]\\
+        P_K^{D, U} &= Pr[S \in_R \{0, 1\}^{l+1}; D(b_0 \ ... \ b_l) == 1]\\
+        \left|P_K^{D, G} - P_K^{D, U}\right| &< k^{-\omega(1)}
+    \end{align*}
+
+
+
+    \noindent Se $b_l \ ... \ b_0$ soddisfa la definizione di indovinare allora soddisfa anche la definizione di distinguere, quindi la sequenza $b_l \ ... \ b_0$ è indistinguibile da una sequenza casuale. 
+
+    Possiamo di conseguenza che $b_0 \ ... \ b_l$ sia indistinguibile? Sia $D$ un distinguisher per $b_l \ ... \ b_0$ (che distingue tra una sequenza veramente casuale e non) e sia $D'$ una macchina tale per cui:
+    \begin{align*}
+        D' :& b_l \ ... \ b_0 \rightarrow D(b_0 \ ... \ b_l)\\
+            & b_0 \ ... \ b_l \rightarrow D(b_l \ ... \ b_0)
+    \end{align*}
+
+    \noindent Se $D'$ riesce a distinguere i bit diritti, vuol dire che $D$ sta distinguendo o bit rovesci; se $D'$ riesce a distinguere i bit rovesci, vuol dire che $D$ sta distinguendo o bit diritti. Quindi distinguere i bit rovesci o dritti è la stessa cosa: se abbiamo distinguisher per i bit rovesci basta invertire i bit dati in input e costruiamo un distinguisher per i bit diritti.
+
+    Con la definizione di indovinare siamo riusciti a dimostrare che i bit alla rovescia funzionano, ma non per i bit diritti. Grazie all'equivalenza tra indovinare e distinguere siamo riusciti a dimostrare che anche i bit diritti funzionano.
+
+    Il vantaggio di restituire i bit alla rovescia sta nel fatto che dopo aver ritornato $b_0$ non siamo in grado di andare avanti con la sequenza: per ottenere il bit successivo dovremmo calcolare il logaritmo discreto del seme (non siamo in grado di calcolare il logaritmo discreto). Il vantaggio dei bit diritti sta nel fatto che possiamo generare bit ogni volta che sono richiesti (dimensione arbitraria).
+\end{proof} 
+
+\subsection{Indovinare $\leftrightarrow$ Distinguere}
+\begin{proof}[indovinare $\rightarrow$ distinguere]
+    Su input $b_0 \ ... \ b_{l-1}$ indoviniamo $b_l$ con vantaggio polinomiale:
+    \begin{align*}
+        \left|Pr[A(b_0 \ ... \ b_{l-1}) = b_l] - \frac{1}{2}\right| > k^{-\omega(1)}
+    \end{align*}
+
+    \noindent Quindi
+    \begin{align*}
+        Pr[A(b_0 \ ... \ b_{l-1}) = b_l]   > \frac{1}{2} + k^{-\omega(1)}
+    \end{align*}
+
+    \noindent Per dimostrare che violando la definizione di indovinare violiamo quella di distinguere possiamo costruire un distinguisher che:
+    \begin{align*}
+        D(b_0 \ ... \ b_{l}) = 
+        \begin{cases} 
+        1 & \mbox{se } A(b_0 \ ... \ b_{l-1}) = b_l \\ 
+        0 & \mbox{altrimenti }
+        \end{cases} 
+    \end{align*}
+
+    \noindent A partire dall'algoritmo $A$ che attacca il sistema di generazione dei bit pseudocasuali secondo la definizione di indovinare, cerchiamo di costruire un distinguisher che distingue sequenza casuali da pseudocasuali.
+
+    Vediamo qual è la probabilità che l'algoritmo $A$ indovini un bit che viene scelto in modo veramente casuale e indipendente da $b_0 \ ... \ b_{l-1}$. Noi sappiamo che se c'è un qualsiasi algoritmo che genera un bit e lo mettiamo in XOR con un bit veramente casuale, la probabilità di uguaglianza è esattamente $\frac{1}{2}$. Quindi la probabilità che $A(b_0 \ ... \ b_{l-1}) = b_l$ è esattamente $\frac{1}{2}$:
+    \begin{align}
+        P_k^{D, U} = \frac{1}{2}
+    \end{align}
+
+    \noindent Sappiamo che la probabilità che $A$  indovini $b_l$ è:
+    \begin{align}
+        P_k^{D, G} = Pr[A(b_0 \ ... \ b_{l-1}) = b_l] > \frac{1}{2} + k^{-c}
+    \end{align}
+
+    \noindent Di conseguenza
+    \begin{align}
+        P_k^{D, G} - P_k^{D, G} \gw \frac{1}{2} + k^{-c} - \frac{1}{2} = k^{-c}
+    \end{align}
+
+    \noindent La differenza tra le due probabilità è maggiore del polinomio $k^{-c }$. Di conseguenza. Quindi se abbiamo l'attaccante per la definizione di indovinare abbiamo anche il distinguisher per la definizione di distinguere. 
+\end{proof}
+
+\begin{proof}[indovinare $\rightarrow$ distinguere]
+    Date la sequenza $b_1 \ ... \ b_{l}$ pseudocasuale e la sequenza $r_1 \ ... \ r_{l}$ casuale, sia $D$ distinguisher che vede al differenza tra le due. Con queste due sequenza non possiamo fare molto per proseguire con la dimostrazione. 
+    
+    Definiamo la sequenza $S_i = b_1 \ ... \ b_i \ R_{i+1} \ ... \ r_l$. Allora $S_0$ è la sequenza pseudocasuale e $S_l$ è la sequenza casuale. 
+
+    Definiamo $P_i$ come la probabilità che $D$ restituisca $1$ con input $S_i$; allora $P_0 = P_k^{D, R}$ e $P_l = P_k^{D, G}$.
+    Sapendo che $|P_l - P_0| > k^{-c}$, facendo la costruzione per interpolazione arriviamo a dire che
+    \begin{align*}
+        \exists i \ |P_i - P_{i+1}| > k^{-c}
+    \end{align*}
+
+    \noindent Cerchiamo ora di definire $A$ che predice il bit $i+1$ conoscendo i bit precedenti:
+    \begin{align*}
+        A(b_1 \ ... \ b_l) = 
+        \begin{cases} 
+        R_{i+1} & \mbox{se } D(b_1 \ ... \ b_i \ R_{i+1} \ ... \ r_l) = 1 \\ 
+        \overline{R_{i+1}} & \mbox{se } D(b_1 \ ... \ b_i \ R_{i+1} \ ... \ r_l) = 0
+        \end{cases} 
+    \end{align*}
+
+    \noindent Vediamo ora qual è la probabilità che $Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}]$:
+    \begin{align*}
+        Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}] = Pr[R_{i+1} = b_{b+1}] \cdot P_{i+1} +  Pr[R_{i+1} = \overline{b_{b+1}}] \cdot X
+    \end{align*}
+
+    \noindent Quando $A$ indovina? Distinguiamo sul valore di $R_{i+1}$: la probabilità di indovinare è data dalla probabilità di indovinare quando il bit successivo è generato ($b_{i+1}$) sommata alla probabilità di indovinare quando il bit è casuale.
+    Se il bit successivo è quello pseudogenerato, la probabilità di indovinare è $P_{i+1}$, ovvero la probabilità che il distinguisher dia $1$ quando sappiamo che i primi $i+1$ bit sono generati (sequenza $b_1 \ ... \ b_i \ b_{i+1} \ r_{i+2} \ ... \ r_l$); se il bit successivo è casuale, la probabilità di indovinare è $X$, che è la probabilità che restituisca $0$ sulla sequenza $b_1 \ ... \ b_i \ \overline{b_{i+1}} \ r_{i+2} \ ... \ r_l$.
+
+    Procediamo col calcolo della probabilità. Poiché il bit $b_{i+1}$ è scelto in maniera casuale, la probabilità che sia $r_{i+1}$ è esattamente $\frac{1}{2}$:
+    \begin{align*}
+        Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}] = \frac{1}{2} P_{i+1} + \frac{1}{2} X
+    \end{align*}
+
+    \noindent Proviamo ora a capire che relazione esiste tra $X$, $P_{i+1}$ e $P_i$. Vediamo quanto vale $P_i$, ovvero la probabilità che $D$ restituisca $1$ con input la sequenza con bit i-esimo casuale, e i successivi pseudocasuali:
+    \begin{align*}
+        P_{i} = &Pr[\textbf{bit $i+1$} = b_{i+1}] \codt Pr[D\text{ dia $1$ su } b_1 \ ... \ b_i \ b_{i+1} \ ... \ b_l] + \\
+        &Pr[\textbf{bit $i+1$} = \overline{b_{i+1}}] \codt Pr[D\text{ dia $1$ su } b_1 \ ... \ b_i \ \overline{ b_{i+1}} \ ... \ b_l]
+    \end{align*} 
+
+    \noindent Risolvendo:
+    \begin{align*}
+        P_{i} = &\frac{1}{2}P_{i+1} + \frac{1}{2} (1-X)
+    \end{align*}
+
+    \noindent Da questa formula ricaviamo che
+    \begin{align*}
+        X = 1 - (2P_i - P_{i+1})
+    \end{align*}
+
+    \noindent Risolvo $X$ nell'espressione sopra:
+    \begin{align*}
+        Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}] &= \frac{1}{2} P_{i+1} + \frac{1}{2} X\\
+        &= \frac{1}{2} P_{i+1} + \frac{1}{2} (1 - (2P_i - P_{i+1}))\\
+        &= \frac{1}{2} P_{i+1} + \frac{1}{2} - P_i + \frac{1}{2} P_{i+1}\\
+        &= \frac{1}{2} + P_{i+1} - P_i\\
+        Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}] - \frac{1}{2} &= P_{i+1} - P_i
+    \end{align*}
+
+    \noindent Di conseguenza
+    \begin{align*}
+        \left|\underbrace{Pr[A(b_1 \ ... \ b_{l}) = b_{l+1}]}_{Pr[A \text{ corretto}]} - \frac{1}{2} \right| &= \left|P_{i+1} - P_i \right| \ge k^{-c}
+    \end{align*}
+
+\end{proof}
+
+\section{Algoritmo di Blum Blum Shoup}
+Algoritmo per la generazione di bit pseudocasuali basato sulla difficoltà del calcolo di radici quadrate in $Z_n^*$. La funzione elevamento al quadrato in $Z_{pq}^*$ è una funzione one-way trapdoor. Sappiamo che l'inversione equivale a fattorizzare (dimostrazione $MCD(x+y, n)$). Se conosciamo $p, q$ allora sappiamo calcolare le radici.
+
+\begin{theorem}[Primi di Blum]
+    Se 
+    \begin{align*}
+        p, q \equiv 3 \pmod 4
+    \end{align*}
+    \noindent allora per ogni quadrato $x$ esiste un'unica radice che un quadrato
+\end{theorem}
+
+\noindent L'hard core predicate che usiamo per la radice quadrata è il $LSB(\sqrt{x})$, quando vale il teorema sopra.\\
+
+\noindent Vediamo l'algoritmo:
+\begin{itemize}
+    \item Sia $n = pq$ con $p, q$ primi di Blum scelti a caso;
+    \item Sia $x \in_R Z_n^*$;
+    \item Definiamo:
+    \begin{center}
+            \begin{tabular}{ c c c c c }
+              $a_1$ & $a_2$ & $a_3$ & $...$ & $a_l$\\
+              \vspace{1cm}
+              $x^2$ & ${(x^2)}^2$ & ${({(x^2)}^2)}^2$ & $...$ & ${x^2}^{l}$\\
+            \end{tabular}
+        \end{center}
+
+    \noindent dove:
+    \begin{align*}
+         \begin{cases}
+            a_1 &= x^2\\ 
+            a_{i+1} &= a_i^2
+        \end{cases}
+    \end{align*}
+
+    \noindent Stiamo applicando successivamente la nostra funzione one-way trapdoor. Definiamo $b_i = LSB(a_i)$:
+    \begin{center}
+            \begin{tabular}{ c c c c c }
+              $a_1$ & $a_2$ & $a_3$ & $...$ & $a_l$\\
+              \vspace{1cm}
+              $x^2$ & ${(x^2)}^2$ & ${({(x^2)}^2)}^2$ & $...$ & ${x^2}^{l}$\\
+              $b_1$ & $b_2$ & $b_3$ & $...$ & $b_l$\\
+            \end{tabular}
+        \end{center}
+    \item Restituiamo i bit $b_l \ ... \ b_1$.
+        
+\end{itemize}
+
+\section{Sistema a chiave pubblica dimostrabilmente sicuro - Algoritmo di Blum Goldwasser}
+\textbf{Generazione chiavi} 
+\begin{itemize}
+    \item $p, q \in_R $ primi di Blum con $k$ bit;
+    \item $n = pq$;
+    \item $P_k = n$, $S_n=(p, q)$.
+\end{itemize}
+
+\noindent \textbf{Encryption}
+\begin{itemize}
+    \item Vogliamo cifrare il messaggio $m: \ m_1 \ ... \ m_l$;
+    \item $x \in Z_n^*$;
+    \item Usiamo Blum Blum Shoup (BBS) per generare $l$ bit pseudocasuali:
+    \begin{center}
+            \begin{tabular}{ c c c c c c c }
+              & $x^2$ & ${(x^2)}^2$ & ${(x^2)}^3$ & $...$ & ${x^2}^{l}$ & \\
+              & $b_1$ & $b_2$ & $b_3$ & $...$ & $b_l$ & \\
+              $\bigoplus$ & $m_1$ & $m_2$ & $m_3$ & $...$ & $m_l$ & \\
+              \hline
+              & $c_1$ & $c_2$ & $c_3$ & $...$ & $c_l$ & ${x^2}^{(l+1)}$ \\
+            \end{tabular}
+        \end{center}
+
+        \noindent Abbiamo usato one-time pad con una chiave che è pseudogenerata a partire da un seme scelto a caso. Questo protocollo è praticamente one-time pad. Noi sappiamo che se la sequenza $b_1 \ ... \ b_l$ è veramente casuale, allora il cyphertext non contiene alcuna informazione circa il plaintext (quindi il cyphertext costruito è completamente sicuro).
+
+        Supponiamo che qualcuno riesca a ottenere qualcosa dal cyphertext, che riesca a distinguere qualsiasi coppia di messaggi cifrata con questo sistema. Quel qualcuno che riesce a vedere se due cyphertext sono dello stesso messaggio o di messaggi diversi sappiamo che non lo riesce a fare in presenza di una chiave veramente casuale. Quel distinguisher per due messaggi del nostro crittosistema diventerebbe un distinguisher per un generatore di bit pseudocasuali: se sono veramente pseudocasuali $D$ non distingue, se i bit sono pseudocasuali si comporta in maniera diversa. Questa macchina diventa un distinguisher per Blum Blum Shoup, che soddisfa le proprietà di un generatore di bit pseudocasuali.
+
+        L'ultimo elemento del cyphertext ${x^2}^{(l+1)}$, agli occhi di chi non ha la chiave pubblica è un elemento casuale di $Z_n^*$. 
+\end{itemize}
+
+\noindent \textbf{Decryption}
+\begin{itemize}
+    \item Per ricavare $x^2$, conoscendo la fattorizzazione di $n$, calcoliamo le radici quadrate di ogni elemento (per i primi di Blum ne esiste solo una che è un quadrato). Esiste un algoritmo che calcola direttamente  $x^2$ da ${x^2}^{(l+1)}$ senza calcolare le radici intermedie;
+    \item Generiamo $b_1 \ ... \ b_l$ a partire da $x^2$;
+    \item Eseguiamo 
+    \begin{center}
+            \begin{tabular}{ c c c c c c c }
+              & $b_1$ & $b_2$ & $b_3$ & $...$ & $b_l$ & \\
+              $\bigoplus$ & $c_1$ & $c_2$ & $c_3$ & $...$ & $c_l$ & \\
+            \end{tabular}
+        \end{center}
+
+        Per ottenere $m_1 \ ... \ m_l$.
+\end{itemize}
+
+\noindent Questo sistema è dimostrabilmente sicuro in quanto riuscire a distinguere messaggi dal loro cyphertext equivale a distinguere la sequenza $b_1 \ ... \ b_l$ da una sequenza puramente casuale equivale ad avere un distinguisher per il sistema Blum Blum Shoup. 
+
+Il crittosistema è complesso quanto RSA: l'algoritmo calcola quadrati $l$ volte, dove il calcolo di ogni quadrato costa $k^2$. Quindi la complessità della codifica è
+\begin{align*}
+    \Theta(lk^2)
+\end{align*}
+\noindent RSA codifica a blocchi; codificando anche qui a blocchi di $k$ bit la complessità diventa 
+\begin{align*}
+    \Theta(lk^2) = \Theta(k \cdot k^2) = \Theta(k^3)
+\end{align*}
+
+
+
+
+
+
+
+
+

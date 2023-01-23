@@ -1,0 +1,156 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Introduzione}
+\labch{chapter1}
+
+\paragraph*{Crittografia} Nasconde il contenuto del messaggio, ma non l'esistenza dello stesso.
+
+\paragraph*{Stenografia} Nasconde l'esistenza del messaggio (es tecniche: inchiostro invisibile, codifico il messaggio nei bit meno significativi dell'immagine che non sono visibili a occhio nudo). Se qualcuno scopre la tecnica che nasconde il messaggio, allora tutti i messaggi che usano quella tecnica diventano visibili.
+
+\paragraph*{Sistema sicuro} Non esiste un concetto assoluto di sicurezza, ma si può dire che un sistema è sicuro quando il costo necessario a romperlo è superiore al vantaggio economico che si otterrebbe/al danno che si produrrebbe.
+
+\section{Breve storia della crittografia}
+
+\paragraph*{Cifrario di Cesare} Uno dei primi metodi crittografici della storia è quello di \textbf{Cesare}. Si basa sullo shift dell'alfabeto di $n$ posizioni. La chiave corrisponde alla prima coppia di lettere dell'alfabeto originale e traslato (es: la chiave è AD, quindi per decifrare il messaggio devo prendere la lettera che corrisponde a 3 posizioni indietro rispetto a quella scritta nel messaggio cifrato -la lettera D cifrata corrisponderà alla lettera A-).
+Si tratta di una cifratura facilmente attaccabile in quanto le \textbf{possibili chiavi} sono solo 26 (\textbf{tutti gli shift dell'alfabeto}).
+Un attacco di questo genere (testo tutti i possibili shift) si chiama attacco di forza bruta: testo tutte le chiavi possibili finché trovo quella corretta.
+
+\paragraph{Permutazione arbitraria dell'alfabeto} Un'evoluzione di questo metodo di cifratura è la \textbf{permutazione arbitraria}. Questo metodo si basa sulla permutazione totale dell'alfabeto, piuttosto che sul suo semplice shift. In questo caso la \textbf{chiave} è \textbf{alfabeto permutato}.
+Le possibili chiavi sono $[26!]$ (50 anni fa non era facilmente attaccabile da attacchi di forza bruta a causa dei pc poco potenti). Questa cifratura è attaccabile con l'\textbf{analisi delle frequenze}\sidenote{L'analisi delle frequenze è lo studio della frequenza di utilizzo delle lettere o gruppi di lettere in un testo cifrato. Questo metodo si basa sul fatto che in ogni lingua la frequenza di uso di ogni lettera è piuttosto determinata; questo è vero in modo rigoroso solo per testi lunghi, ma spesso testi anche corti hanno frequenze non molto diverse da quelle previste. 
+Tramite questa analisi è possibile inoltre determinare anche la lingua del messaggio, in quanto ogni lingua ha delle frequenze specifiche (tralasciando le lingue orientali).}. 
+Nel caso si utilizzi un attacco a forza bruta (automatizzato dal pc), è possibile capire che se ho raggiunto il risultato corretto sempre tramite l'analisi delle frequenze. 
+
+\paragraph{Counter all'analisi delle frequenze} Si propose di lavorare non più con una singola lettera, ma con coppie di lettere. In questo modo ad ogni lettera cifrata potevano corrispondere 2 lettere in chiaro. Uno degli approcci utilizzati è il seguente:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+& & & & &
+\hline 
+& & & & &
+\hline 
+& & & & &
+\hline 
+& & & & &
+\hline 
+& & & & &
+\hline 
+\end{tabular}
+\end{table}
+
+\noindent Supponiamo di avere una tabella $5 \times 5$ che andrà a contenere una password che sarà la chiave. Usiamo la parola \textit{MONARCHY}. Nel caso la password contenga lettere ripetute, le ripetizioni vengono saltate, in modo che ogni lettera compaia una sola volta.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+M & O & N & A & R &
+\hline 
+C & H & Y & & &
+\hline 
+& & & & &
+\hline 
+& & & & &
+\hline 
+& & & & &
+\hline 
+\end{tabular}
+\end{table}
+
+\noindent A questo punto procediamo inserendo le lettere dell'alfabeto mancanti, saltando ovviamente quelle già inserite. Consideriamo la lettera I uguale alla lettera J (ho 25 posti e le lettere sono 26).
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+M & O & N & A & R &
+\hline 
+C & H & Y & B & D &
+\hline 
+E & F & G & I/J & K &
+\hline 
+L & P & Q & S & T &
+\hline 
+U & V & W & X & Z &
+\hline 
+\end{tabular}
+\end{table}
+
+\noindent Possiamo procedere ora con la codifica, lavorando sulle coppie di lettere. Le regole da seguire sono:
+\begin{itemize}
+    \item Se la coppia di lettere da cifrare appartiene alla stessa riga nella tabella, si prenderà la lettera successiva nella riga, procedendo in maniera circolare.
+    
+    Esempio: Supponiamo di dover cifrare la coppia AR. Nella tabella AR appartiene alla stessa riga, quindi uso la regola sopra. La lettera A corrisponderà alla lettera R (mi sposto di una posizione), mentre la lettera R corrisponderà alla lettera M (essendo la fin della riga, la posizione successiva è l'inizio della riga stessa).
+    
+    Quindi:
+    \begin{center}
+        AR $\longrightarrow$ RM\\
+        OA $\longrightarrow$ RN
+    \end{center}
+    
+    \item Se la coppia appartiene alla stessa colonna, lavoro come nel primo caso, solo che qui mi sposto verso il basso sulla colonna.
+
+    Esempio:
+    \begin{center}
+        MU $\longrightarrow$ CM
+    \end{center}
+    
+    \item Se la coppia appartiene a righe e colonne diverse, la prima lettera si sposterà nella colonna della seconda e viceversa.
+    
+    Esempio:
+    \begin{center}
+        PB &$\longrightarrow$ SH\\
+        EA &$\longrightarrow$ IM oppure JM
+    \end{center}
+    
+\end{itemize}
+
+\noindent Anche questo metodo è comunque attaccabile con l'analisi delle frequenze, in quanto, sebbene la codifica di una lettera dipende dall'altra della coppia (e quindi non valore più il caso di \textit{a lettera uguale corrisponde lettera uguale}), vale il caso in cui "a coppia uguale corrisponde coppia uguale" e anche le coppie di lettere di una lingua hanno le loro frequenze.
+
+\paragraph{Cifrario di Vigenère} Il cifrario di Vigenère riprende l'idea del cifrario di Cesare: presa una chiave (es: \textit{key}), si ripete la chiave tante volte quanto è lungo il testo (eventualmente troncando l'ultima ripetizione), e si codifica la lettera con il corrispondete cifrario di Cesare. 
+
+\noindent
+K E Y K E Y K E Y K E Y \\
+P R O V A D I T E S T O 
+	
+\noindent La prima lettera del cipher text sarà la lettera ottenuta dal cifrario di Cesare di chiave AP, la seconda con la chiave AR e così via.
+Anche questo cifrario è semplice da attaccare, si parte dalla divisione del ciphertext in gruppi di lunghezza pari a quella della chiave, e si esegue l'analisi delle frequenze su ogni gruppo. Nel caso in cui non si conosca la lunghezza della chiave, si può semplicemente provare tutte le possibili lunghezze della chiave. Ovviamente sarà necessario un testo di dimensioni maggiori ai precedente per poter effettuare l'analisi. Se la password fosse lunga quanto il testo, l'analisi delle sequenze non sarebbe possibile.
+	
+\paragraph{One-time pad} Vediamo ora lo schema di Vigenère applicato ad un alfabeto binario. In questo caso il mio alfabeto si compone di soli due simboli: 0 e 1. Posso avere solo 4 casi di chiave-testo:
+\begin{align*}
+Key \rightarrow & 1 0 1 0 \\
+Text \rightarrow & 0 1 0 1 \\
+Cyph \rightarrow & 0 1 1 0 
+\end{align*}
+
+\noindent Praticamente applicare questo schema ad un alfabeto binario equivale ad applicare lo XOR tra testo in chiaro e chiave. Per riottenere il plaintext a partire dal cyphertext, mi basta riapplicare lo XOR tra chiave e cyphertext. Riassumendo:
+\begin{align*}
+    \text{Encryption } E(P, K) = P  \oplus K\\
+    \text{Decryption } D(C, K) = C  \oplus K
+\end{align*}
+
+\noindent Se ho una chiave lunga quanto il testo e la chiave è scelta in modo casuale (ogni bit del testo è indipendente dalla chiave (viene scelto non conoscendo la chiave)):
+\begin{itemize}
+    \item La probabilità che il primo bit \textit{b} del cyphertext \textit{c} sia 0 è $\frac{1}{2}$ (lo stesso che sia uno);
+    \item La probabilità che il primo bit del cyphertext sia 0 è
+        \begin{align*}
+            Pr[c = 0] &= Pr[b = 0 \land k = 0] + Pr[b = 1 \land k = 1]\\
+                    &= P \cdot \frac{1}{2} + (1-P) \cdot \frac{1}{2}\\
+                    &= \frac{1}{2} (P+1-P)\\
+                    &= \frac{1}{2}
+        \end{align*}
+    \noindent Ovvero la probabilità che il cyphertext \textit{c} sia 0 è data dalla probabilità \textit{P} che il bit \textit{b} sia stato scelto con valore 0, moltiplicata la probabilità che il bit \textit{k} della chaive sia stato scelto a 0, sommata alla probabilità che il bit del plaintext \textit{b} sia stato scelto a 1, quindi \textit{P - 1}, moltiplicata la probabilità che \textit{k} sia 1.
+\end{itemize}
+
+\noindent Se scelgo la chiave in maniera casuale, a prescindere da come è stato scelto il plaintext, la distribuzione probabilistica sul cyphertext è quella uniforme. Quindi osservando il cyphertext vedo solo una sequenza casuale di bit, che non mi può dire nulla sul plaintext (ogni plaintext è equamente probabile dato il cyphertext). Questo sistema, detto \textbf{one-time pad}, è assolutamente sicuro.
+
+\paragraph{Teorema di Shannon} Per avere un sistema crittografico sicuro, tale per cui a partire dal cyphertext non si può ricavare nulla del plaintext, allora la chiave deve essere tanto lunga quanto il plaintext. 
+
+Secondo questo teorema, i sistemi usati oggi non sarebbero sicuri, in quanto usano chiavi con dimensione inferiore al messaggio scambiato. Per questo l'obiettivo è costruire sistemi dove, sebbene sia possibile ottenere informazioni dal cyphertext, questa operazione diventi troppo complessa (es: richiede molto tempo).
+	
+\section{Problemi di sicurezza non legati alla crittografia}
+La sicurezza del dato non dipende solo dall'affidabilità del protocollo crittografico utilizzato. Rischi di sicurezza possono derivare, ad esempio, anche dalle implementazioni. 
+
+Vediamo il caso dell'IBM 360. Il sistema utilizzava, per il controllo della password, il semplice controllo della stringa (si confronta la prima coppia di lettere e se uguali si passa alla seconda e così via) e memorizza la password in chiaro. Si riuscì a fare in modo che una parte della password inserita per il test finisse in una pagina di memoria, mentre il resto in una seconda pagina che finisce fuori dalla chache. Si faceva quindi partire il confronto e se il sistema ritornava un page fault\sidenote{Il page fault è un'eccezione generata quando un processo cerca di accedere a una pagina che è presente nel suo spazio di indirizzamento virtuale, ma che non è presente nella memoria fisica poiché mai stata caricata o perché precedentemente spostata su disco di archiviazione. Tipicamente, il sistema operativo tenta di risolvere il page fault caricando la pagina richiesta nella memoria virtuale oppure terminando il processo in caso di accesso illegale. Il componente hardware che rileva i page fault è il memory management unit, mentre quello software di gestione delle eccezioni è generalmente parte del sistema operativo (kernel). } allora la parte di password scritta nella prima pagina era corretta (se fosse stata errata il controllo si sarebbe fermato prima di raggiungere la seconda pagina, che essendo fuori dalla chache, dà page fault).
+
+Un altro problema legato al controllo tramite confronto delle stringhe è che più lunga è la stringa, maggiore è il tempo necessario per terminare l'operazione. Si potrebbe quindi determinare la lunghezza della stringa contando i microsecondi necessari al completamento del controllo.

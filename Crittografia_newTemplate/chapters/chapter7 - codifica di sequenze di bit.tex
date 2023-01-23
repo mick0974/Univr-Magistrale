@@ -1,0 +1,201 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Codifica di sequenze di bit}
+\labch{chapter7}
+
+Supponiamo di voler codificare una sequenza di $l$ bit $b_1 ... b_l$, ha senso codificare i singoli bit e poi ricomporre la sequenza come $E(b_1) ... E(b_l)$? Se teniamo presente la malleabilità, questa soluzione non è possibile, in quanto una codifica di questo tipo è malleabile. 
+
+Non consideriamo per ora la malleabilità, ma concentriamoci solo nel fare in modo che dal cyphertext non possa essere estratta \textbf{alcuna informazione binaria} del plaintext. Allora il sistema appena descritto funziona. Ma cosa vuol dire che non è possibile estrarre alcuna informazione dal cyphertext relativa al plaintext?
+
+\section{Distinguisher e capacità di distinguere}
+
+\begin{definition}
+Un distinguisher $D \in PPT$ è un algoritmo che dato un input restituisce $0$ (con probabilità $x$) o $1$ (con probabilità $100-x$).
+
+In generale, se la differenza tra le probabilità che $D$ ha di dire $0$ e $1$ è molto piccola (più piccola di ogni polinomio), per avere un vantaggio il numero di esperimenti da fare è molto alto (più grande di ogni polinomio).\\
+\end{definition}
+
+\begin{definition}
+Sia $P_k^{D, m}$ la probabilità che $D$ restituisca $1$ su una codifica di $m$ quando il security parameter vale $k$:
+\begin{enumerate}
+    \item Un crittosistema $E$ nasconde $m_1$ e $m_2$ a $D$ quando
+\begin{align*}
+   \forall c \ \exists {\bar{n}} \ \forall n > \bar{n} \ \left|P_{k}^{D, m_1} - P_{k}^{D, m_2}\right| < k^{-c}
+\end{align*}
+
+\noindent Un'altra notazione per scrivere questa formula è
+\begin{align*}
+    \left| P_k^{D, m_1} - P_k^{D, m_2} \right| < k^{-\omega(1)}
+\end{align*}
+\noindent dove $\omega(1)$ è l'insieme di tutti i naturali.
+
+\item $E$ nasconde a $D$ se 
+\begin{align*}
+    \forall m_1, m_2 \ E \text{ nasconde } m_1, m_2 \text{ a } D
+\end{align*}
+
+\item $E$ nasconde se $\forall D \in PPT \ E \text{ nasconde a } D$, ovvero
+\begin{align*}
+    \forall D \in PPT \ \forall m_1,m_2 \ \left|P_{k}^{D, m_1} - P_{k}^{D, m_2}\right| < k^{-c}
+\end{align*}
+\noindent ovvero $E$ impedisce a chiunque di distinguere nessuna coppia di messaggi. 
+\end{enumerate}
+\end{definition}
+
+\noindent Esiste comunque una qualche proprietà binaria dei messaggi che $D$ è in grado di distinguere? Se esiste allora dati un messaggio che la soddisfa e un messaggio che non la soddisfa, $D$ dovrebbe essere in grado di vedere la differenza tra i due messaggio, ma per la definizione sopra il distinguisher non la può vedere. Questa è veramente una buona definizione? Se un crittosistema la soddisfa allora non è attaccabile? Assolutamente no. Ad oggi, sulla base dell'esperienza che abbiamo, questa appare essere una buona definizione di correttezza, ma non è stata dimostrata. 
+
+Quando definiamo un protocollo e i suoi parametri, siamo sicuri che il crittosistema esista? Potrebbe capitare che la definizione sia così pensante da non poter essere realizzata nella realtà. In questo caso diventa necessario indebolire la definizione per implementarla. 
+
+L'algoritmo che abbiamo descritto sopra, che concatena le codifiche dei singoli bit, è un algoritmo che soddisfa le proprietà del distinguisher. Il fatto che un crittosistema sia sicuro rispetto alla definizione del distinguisher non implica che sia sicuro rispetto alla malleabilità. 
+
+Dimostriamo ora che il crittosistema costruito nasconde ad ogni distinguisher. La tecnica usata sarà utile in vari contesti.
+
+\begin{proof}
+Supponiamo per assurdo che il crittosistema non sia sicuro e quindi non soddisfi la definizione. Allora:
+\begin{align*}
+    \exists D \in PPT \ \exists m_1, m_2 \ \exists c \ \forall \bar{k} \ \exists{k > \bar{k}} \left| P_k^{D, m_1} - P_k^{D, m_2} \right| > k^{-c}
+\end{align*}
+Siano $m_1 = \alpha_1 \ \alpha_2 \ ... \ \alpha_l$ e $m_2 = \beta_1 \ \beta_2 \ ... \ \beta_l$ con:
+\begin{itemize}
+    \item $E(m_1) = E(\beta_1) \ E(\beta_2) \ ... \ E(\beta_l)$;
+    \item $E(m_2) = E(\alpha_1) \ E(\alpha_2) \ ... \ E(\alpha_l)$.
+\end{itemize}
+\noindent Per dimostrare che possiamo attaccare questa codifica, andiamo a vedere se a partire dall'esistenza dei due messaggio $m_1$ e $m_2$ riusciamo a dimostrare l'esistenza di altri due messaggi distinti per un solo bit. 
+
+Definiamo per ogni $i \in \{0, ..., l\}$
+\begin{align*}
+    m(i) = \beta_1 \ ... \ \beta_i \ \alpha_{i+1} \ ... \ \alpha_{l}
+\end{align*}
+
+\noindent Ad esempio:
+\begin{align*}
+    m(0) = \alpha_{1} \ ... \ \alpha_{l} \equiv m_1\\
+    m(l) = \beta_1 \ ... \ \beta_l \equiv m_2
+\end{align*}
+
+\noindent Con questa costruzione dei messaggi, i messaggi $m(i)$ non son altro che i messaggi intermedi tra $m_1$ e $m_2$ che permettono di passare $m_1$ a $m_2$ un bit alla volta. In totale sono $l+1$ messaggi intermedi. Tra il messaggi $i$ e $i+1$ cambia un solo bit, che è quello $i+1$.
+
+Il nostro obiettivo è trovare due messaggi tra questa serie di messaggi intermedi che siano distinguibili che differiscono solo per un bit. Per fare ciò definiamo
+\begin{align*}
+    P(i) = P_k^{D, m_i}
+\end{align*}
+\noindent la proprietà che il distinguisher ritorni $1$ se gli passiamo in input una codifica del messaggio $m(i)$. La nostra ipotesi diventa quindi
+\begin{align*}
+    k^{-c} &< \left|P_{k}^{D, m_1} - P_{k}^{D, m_2}\right|\\
+            &= \left|P(0) - P(l)\right|\\
+            &= \underbrace{\left|\sum^l _{i=1}(P(i-1) - P(i))\right|}_{P(0) - P(1)
+                                                        + P(1) - P(2)
+                                                        + ...
+                                                        + P(l-1) - P(l)}
+\end{align*}
+
+\noindent Abbiamo riscritto la probabilità con cui $D$ ritorna $1$ su $m_1$ e $1$ su $m_2$ come una somma di differenze di probabilità con cui $D$ ritorna $1$ su messaggi che sono sequenziali. Ogni coppia di messaggi sequenziale differisce per un solo bit. 
+
+In questo modo abbiamo espresso il risultato del nostro esperimento come somma dei risultati di esperimenti fatti su coppie di messaggi che differiscono. Possiamo ora la disuguaglianza di Weierstrass, che dice che il modulo della somma di qualcosa è minore uguale della somma dei moduli:
+\begin{align*}
+    &= \left|\sum^l _{i=1}(P(i-1) - P(i))\right|\\
+    &\le \sum^l_{i=1} \left| P(i-1) - P(i)\right|
+\end{align*}
+\indent Arrivati qui vediamo che abbiamo una somma di moduli che eccede $k^{-c}$. Se noi abbiamo una somma di numeri che eccede un determinato valore, allora sappiamo che esiste almeno un elemento che è maggiore uguale della media\sidenote{In ogni sommatoria è sempre presente un elemento che è maggiore o uguale alla media.}. 
+
+\begin{definition}
+Supponendo di avere una generica sommatoria 
+\begin{align*}
+    \sum^n_{i=0} x_i = L
+\end{align*}
+\noindent allora 
+\begin{align*}
+    \exists i \ x_i \ge \frac{L}{n}
+\end{align*}
+\end{definition}
+\begin{proof}
+Supponiamo per assurdo
+\begin{align*}
+    \forall i \ x_i < \frac{L}{m}
+\end{align*}
+\noindent allora
+\begin{align*}
+    \sum x_i < \sum \underbrace{\frac{L}{n}}_{L} 
+\end{align*}
+\noindent IMPOSSIBILE
+\end{proof}
+
+\noindent Nella nostra sommatoria stiamo sommando tutti elementi positivi, il sui risultato è maggiore di $k^{-c}$. La media di questa somma è maggiore uguale di $\frac{k^{-c}}{l}$. Da questo possiamo dire che:
+\begin{align*}
+    \exists i \ \bigg|P(i-1) - P(i)\bigg| > \frac{k^{-c}}{l} > k^{-c+1} \text{ con $k$ abbastanza grande}
+\end{align*}
+
+\noindent Abbiamo trovato due messaggi $m_i$ e $m_{i+1}$ che il $D$ è in grado di riconoscere con un vantaggio polinomiale $k^{c'} = k^{-c+1}$. Non è la stessa $c$ di prima, ma a noi basta trovare una $c$.
+
+Possiamo quindi concludere che esiste un $D$ che riesce a distinguere i messaggi $m_i$ e $m_{i+1}$. La tecnica che abbiamo usato è detta \textbf{Tecnica di Interpolazione}. 
+\begin{definition}[Tecnica di interpolazione]
+Dati due cose molto diverse che vengono distinte, la tecnica di interpolazione consiste nel cercare di trovare una regola di trasformazione che permetta di passare da una all'altra cambiando poche cose alla volta in maniera tale che alla fine si arrivi a distinguere nuovi oggetti che però sono molto più simili tra di loro e sono sufficientemente simili per usarli come base per un attacco a qualcos'altro.
+\end{definition}
+
+\noindent Vediamo ora se, seguendo quanto dice la tecnica di interpolazione, riusciamo a utilizzare la coppia di messaggi trovata per attaccare un crittosistema che codifica un singolo bit:
+\begin{align*}
+    m(i-1) = \beta_1 \ ... \ \beta_{i-1} \ &\alpha_i \ \alpha_{i+1} \ ... \ \alpha_l\\
+    m(i) = \beta_1 \ ... \ \beta_{i-1} \ &\beta_i \ \alpha_{i+1} \ ... \ \alpha_l\\
+\end{align*}
+
+\noindent I due messaggi sono identici eccetto per il bit i-esimo. Come facciamo a dire effettivamente il bit $\beta_i$ e $\alpha_i$ sono diversi? Visto che i due messaggi sono identici eccetto per il bit i-esimo e il distinguisher li distingue, è chiaro che i due messaggi sono diversi. 
+
+Supponiamo senza perdita di generalità che $\alpha_i = 0$ e $\beta_i = 1$\sidenote{Per fare una dimostrazione completa avremmo dovuto risolvere i due casi, quello dove $\alpha_i = 0$ e $\beta_i = 1$ e quello dove $\alpha_i = 1$ e $\beta_i = 0$. Quando diciamo "supponiamo senza perdita di generalità" che vale uno dei due casi, è perché l'altro caso è sostanzialmente identico. In questo caso, se dovesse valere il contrario rispetto al caso che stiamo dimostrando, basta scambiare $m(i-1)$ e $m(i)$ e tornare al caso che stiamo dimostrando.}. Sia $z$ un elemento di $Z_n^*$ con $\left( \frac{z}{n}\right) = 1$. Allora $z$ potrebbe essere la codifica di $0$ o la codifica di $1$. Il nostro obiettivo di vedere se $D$ riesce a vedere la differenza tra la codifica di uno $0$ o la codifica di un $1$. $D$ ritorna uno $0$ o un $1$, ma vogliamo che la probabilità con cui ritorna $1$ nel caso in cui $z$ sia la codifica di uno $0$ sia sufficientemente diversa dalla probabilità con cui $D$ ritorna $0$ nel caso in cui $z$ sia la codifica di uno $1$. 
+Allora dato $z$:
+\begin{itemize}
+    \item Costruisci $E(\beta_1) \ E(\beta_2) \ ... \ E(\beta_i) \ z \ E(\alpha_{i+2}) \ ... \ E(\alpha_l)$;
+    \item Lancia $D$ sul risultato.
+\end{itemize}
+\noindent Abbiamo costruito un qualcosa che se $z$ è la codifica di $0$ abbiamo costruito la codifica di un messaggio $m(i-1)$, mentre se $z$ è la codifica di $1$ abbiamo costruito la codifica di un messaggio $m(i)$. La probabilità con cui $D$ restituisce $1$ è
+\begin{align*}
+    P(i-1) \text{ se $z$ codifica $0$}\\
+    P(i) \text{ se $z$ codifica $1$}
+\end{align*}
+\noindent Allora $P(i-1)$ è la probabilità con cui $D$ restituisce $1$ se gli diamo in input una codifica del messaggio $m(i-1)$, codifica costruita secondo l'algoritmo per codificare il messaggio $m(i-1)$. Cosa vuol dire codificare il messaggio $m(i-1)$? Significa applicare $E(\beta_1)$, $E(\beta_2)$, ..., $E(\beta_i)$, $E(\alpha_{i+2})$, ... . Ma per quanto riguarda $z$, abbiamo applicato l'algoritmo? No, perché l'algoritmo di codifica prevede di dare un quadrato a caso se vogliamo codificare uno $0$ e un non quadrato a caso se vogliamo codificare un $1$. Ma $z$ non è un quadrato a caso, ma un quadrato o un non quadrato che ci viene dato, e che non sappiamo come è stato pescato. Quindi se vogliamo veramente costruire un oggetto che è una codifica di $m(i-1)$ o $m(i)$, dobbiamo prendere $zx^2$ dove $x \in_R Z_n^*$. Dobbiamo prendere l'oggetto che ci è stato dato e trasformarlo in una nuova codifica dello stesso plaintext ma costruito secondo la distribuzione che si aspetta l'algoritmo $D$. 
+L'algoritmo quindi diventa:
+\begin{itemize}
+    \item Costruisci $E(\beta_1) \ E(\beta_2) \ ... \ E(\beta_i) \ zx^2 \ E(\alpha_{i+2}) \ ... \ E(\alpha_l)$;
+    \item Lancia $D$ sul risultato.
+\end{itemize}
+
+Ora il costrutto è effettivamente un cyphertext a caso che codifica il messaggio $m(i-1)$ e $m(i)$ e quindi abbiamo $P(i-1)$ se $z$ codifica uno $0$ e $P(i)$ se $z$ codifica un $1$. A questo punto il distinguisher vede effettivamente la differenza tra uno $z$ che codifica uno $0$ e uno $z$ che codifica un $1$.
+
+La nostra definizione di correttezza per la codifica del singolo bit non dice "non esiste un distinguisher", ma "non esiste un algoritmo $A$ in grado di calcolare il bit con un vantaggio polinomiale". Quindi la non esistenza del distinguisher implica la non esistenza dell'algoritmo $A$ che non riesce a calcolare? Le due definizioni sono sostanzialmente equivalenti, dire che non esiste un distinguisher e dire che non esiste un algoritmo in grado di calcolare il plaintext è la stessa cosa. 
+
+\begin{proof}
+Supponiamo che:
+\begin{itemize}
+    \item $P_0$ la probabilità che $D$ ritorni un $1$ dato in input uno $0$. Quindi $P_0 = P(i-1)$;
+    \item $P_1$ la probabilità che $D$ ritorni un $1$ dato in input uno $1$. Quindi $P_1 = P(i)$.
+\end{itemize}
+\noindent Allora se riceviamo la codifica di un bit scelto a caso, con quale probabilità riusciamo a indovinarlo? Usiamo il risultato di $D$ come tentativo. La probabilità di indovinare è
+\begin{align*}
+    Pr[indovinare] = \frac{1}{2}\left(1-P_0 \right) + \frac{1}{2} P_1 &= \frac{1}{2} + \frac{1}{2}P_1 - \frac{1}{2}P_0\\
+    &= \frac{1}{2} + \frac{1}{2}\left( P_1 - P_0\right)\\
+\end{align*}
+\noindent Se il bit dato è uno $z$ (con probabilità $1/2$), $z$ sarà una codifica di uno $0$ e la probabilità con cui $D$ ritorna $1$ è $P_0$, ma la macchina indovina se restituisce $0$, quindi la probabilità che la macchina ha di indovinare è $1-P_0$. Similmente per il bit a $1$, solo che in questo caso $D$ ritorna $1$ con probabilità $P_1$ e quindi la probabilità per la macchina resta $P_1$. 
+Mettiamo ora in modulo il risultato ottenuto e togliamo $\frac{1}{2}$:
+\begin{align*}
+    \left| \frac{1}{2} + \frac{1}{2}\left( P_1 - P_0\right) - \frac{1}{2} \right| = \left| \frac{1}{2}\left( P_1 - P_0\right)\right| = \frac{1}{2}\left| \left( P_1 - P_0\right)\right|
+\end{align*}
+\noindent Noi sappiamo che $\left| \left( P_1 - P_0\right)\right| > k^{-c'}$, quindi:
+\begin{align*}
+    \frac{1}{2}\bigg| \left( P_1 - P_0\right)\bigg| &= \frac{1}{2}\bigg| \left( P(i) - P(i-1)\right)\bigg|\\
+    &> \frac{1}{2}k^{-c'}
+\end{align*}
+\noindent Abbiamo scoperto che il nostro algoritmo, che usa il risultato di $D$ come strumento per indovinare il bit che è stato codificato ha un vantaggio rispetto a $\frac{1}{2}$ che è più grande del polinomio $k^{-c'}$. Effettivamente quell'algoritmo è il nostro attaccante.\\
+
+\noindent 50:00 - 1:00:00 dimostrazione fatta a lezione.
+
+\end{proof}
+
+\end{proof}
+
+\noindent Siamo arrivati ad uno schema di codifica che è dimostrabile sicuro, in quanto se qualcuno riuscisse a ricavare informazione (vedere differenza tra i cyphertext che hanno l'informazione e quelli che non ce l'hanno) allora riuscirebbe a trovare un algoritmo in grado di indovinare un plaintext a partire da un cyphertext con un vantaggio polinomiale. Abbiamo già dimostrato, nel capitolo precedente, che se un tale algoritmo dovesse esistere, allora quell'algoritmo può essere usato come black-box per risolvere il problema del residuo quadratico. 
+
+Questo schema dimostra anche che se qualcuno ci fornisse uno schema di codifica di natura diversa, noi potremmo dimostrare la correttezza dello schema che codifica tanti bit riconducendoci allo schema che codifica il singolo bit. 
+
+Siamo riusciti ad ottenere la sicurezza dimostrabile. Però se dovessi codificare un singolo bit, dovrei inviare $1000$ bit; se dovessimo codificare $1000$ bit, dovremmo inviare $1'000'000$ bit. Noi vorremmo un sistema che codifica un bit con un singolo bit. Se codificassi un bit con un solo bit non potremmo creare cyphertext enormi, ma solo cyphertext che sono $0$ o $1$. Ci servirebbe un meccanismo in grado di codificare una sequenza di bit arbitraria con una nuova sequenza di bit lunga quanto la sequenza di partenza, ma in maniera tale che la codifica del singolo bit sia comunque dimostrabilmente sicura. 
+
+La parte difficile è come prendere da uno schema è come prendere uno schema che codifica un bit basandosi sulla difficoltà di applicare funzioni a migliaia di bit e convertirlo in uno schema che si basi sulla difficoltà di calcolare un singolo bit, anziché la difficoltà di calcolare $1000$ bit. Per fare questo studieremo un problema laterale alla crittografia, i generatori pseudocasuali, che servono per fare le scelte a caso. Una volta che avremo un generatore pseudocasuale crittograficamente sicuro, lo useremo per generare una sequenza di bit casuale da usare come chiave per one-time pad. La vera chiave segreta sarà in qualche modo legata al seme con cui generiamo lo stream di numeri. In questo modo prenderemo una sequenza di bit casuali lunga quanto il messaggio e la metteremo in XOR con il messaggio in chiaro e otterremo un cyphertext lungo quanto il plaintext.
+
+Fin'ora abbiamo lavorato con funzione one-way, ma ora necessitiamo anche di lavorare con l'incapacità di ricavare una qualche informazione binaria da una funzione one-way. Dovremmo cercare di usare funzioni one-way per sfruttare la difficoltà di una qualche informazione binaria su queste funzioni one-way e l'informazione binaria sarà in qualche modo quel bit  che vogliamo usare per fare le nostre codifiche.
