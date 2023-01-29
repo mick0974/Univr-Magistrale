@@ -1,0 +1,218 @@
+\chapter{Introduzione alla data protection}
+
+Dal 25 maggio 2018 è entrato in vigore il regolamento europeo per la protezione dei dati personali, che ha cambiato gli obblighi che chi raccoglie dati personali di cittadini UE deve rispettare. Lo scopo del regolamento è quello di armonizzare le leggi dei vari paesi UE in merito alla protezione dei dati. 
+
+Il GDPR è andato a sostituire la direttiva europea 95/46, che dettava quali erano i principi relativi alla protezione dei dati personali, ma non era direttamente applicabile. Ogni stato europeo aveva una sua legge nazionale per la protezione dei dati, e quindi i dati potevano essere trattati diversamente in base al paese dell'individuo. 
+
+L'altro cambiamento che è stato introdotto è come viene gestito il controllo che i principi vengano rispettati. Inizialmente era presente il Working Party 29, ora sostituito dall'European Data Protection Board (ESPB), composto da tutte le data protection autority di ogni paese europeo. In Italia abbiamo il Garante della privacy.
+\\
+
+\noindent Il GDPR ha introdotto delle modifica sostanziali rispetto alla direttiva europea:
+\begin{itemize}
+    \item Riconosce ai cittadini dei diritti rispetto a come devono essere trattati i loro dati personali;
+    \item Introduce il principio di trasparenza, che obbliga il data controller a informare l'utente su come i dati vengono trattati;
+    \item Introduce la responsabilizzazione per chi raccogli i dati personali, imponendo loro a mantenere traccia di come rispettano i principi imposti al regolamento;
+    \item Cambia il concetto di dato personale:
+    \item Impone delle multe qualora i principi per la protezione dei dati non vengono rispettati.
+\end{itemize}
+
+\noindent Il GDPR identifica tra tipi di entità dal punto di vista legale:
+\begin{itemize}
+    \item Data target: soggetto di cui vengono prelevati i dati personali;
+    \item Data controller: soggetto (o insieme di soggetti) che decide lo scopo e i mezzi con cui i dati sono trattati;
+    \item Data processor: soggetto responsabile del trattamento dei dati per conto del data controller;
+\end{itemize}
+\\
+
+\noindent \\\\\underline{Esempio 1}
+\\
+
+\noindent Supponiamo di avere un'agenzia di viaggi che deve mandare le informazioni personali dei suoi clienti alla compagnia aerea e all'hotel per effettuare la prenotazione. Confermata la prenotazione, l'agenzia le inoltra ai clienti. Vediamo ora i ruoli:
+\begin{itemize}
+    \item Data controller/titolare del trattamento: agenzia di viaggio, agenzia aerea, hotel.
+\end{itemize}
+
+\noindent Tutte e tre le aziende vengono identificate come data controller dal Working Party 29 in quanto tutte e tre hanno un contratto in essere con i clienti, e quindi tutte devono definire finalità e come vengono processati i dati. Se una delle tre soffre di data breach, tutte e tre potrebbero essere ritenute responsabili.
+\\
+
+\noindent \underline{Esempio 2}
+\\
+
+\noindent Le reti sociali forniscono un modo per condividere informazioni. Un utente può sia condividere proprie informazioni che informazioni di altre persone. Vediamo ora i ruoli:
+\begin{itemize}
+    \item Data controller/titolare del trattamento: rete sociale e utenti (es: cyberbullismo).
+\end{itemize}
+   
+\paragraph{Articolo 82 GDPR} Dal punto di vista legale al differenza tra data processor e data controller è poco rilevante. Sia il data controller che il data processor sono soggetti agli stessi obblighi dal punto di vista della legge (diversamente dalla direttiva 95).
+
+\section{Dato personale}
+Per il GDPR qualsiasi informazione che rende un individuo identificato (associamo un'identità a quella persona) o identificabile (anche se non siamo in grado di associare un'identità, ma siamo in grado di distinguerla all'interno di un certo gruppo di persone) la rende un dato personale. Con il GDPR diventano dati personale anche tutte quelle informazioni che tracciano un individuo, i dati genetici e i dati biometrici. Altri dati personali possono essere informazioni sensitive come opinioni politiche, orientamento sessuale, religione che si segue. 
+\\
+
+\noindent Anche l'indirizzo IP, in base al contesto, può essere considerato un dato personale. Prima del GDPR non era considerato come dato personale. Alcuni siti governativi tedeschi tracciavano una serie di informazioni sugli utenti che le visitavano, come indirizzo IP, siti visitati, quantità di dati trasferiti dalle pagine, parametri delle ricerche effettuati. Questo insieme di informazioni, anche se non contiene l'identità della persona, permette di creare un profilo molto accurato delle attività dell'utente, i suoi interessi e alcune informazioni personali.
+
+La Corte Europea ha deliberato che se il service provider che tracciava queste informazioni dispone di altre informazioni, oltre all'IP, che permettevano di identificare la persona, l'IP address deve essere considerato dato personale.
+\\
+
+\noindent Alcuni esempi di dati personali e non sono riportati nella tabella \ref{table:table13-1}.
+
+
+\begin{table}
+\centering
+\begin{tabular}{|p{0.5\textwidth}p{0.5\textwidth}|}
+     \hline
+     John Smith. & Non è sempre dato personale perché è un nome comune.\\ 
+     \hline
+     L'uomo alto e anziano con un bassotto che vive al numero 15 e guida una Porsche Cayenne. & Queste info potrebbero permettere di distinguerlo da altre persone che vivono nella stessa area.\\  
+     \hline
+     Indirizzo di una persona. & La ricerca su un registro pubblico potrebbe permettere di identificare chi ci vive.\\
+     \hline
+     Una società di servizi pubblici non registra il nome dell'occupante della casa a cui fornisce acqua, ma semplicemente annota l'indirizzo della proprietà e indirizza tutte le fatture all'occupante. & Anche se c'è solo l'indirizzo, è possibile distinguere il consumo di energia elettrica di chi vive in quell'indirizzo rispetta agli altri indirizzo.\\
+     \hline
+     Le informazioni sul valore di mercato di una particolare casa vengono utilizzate a fini statistici per identificare le tendenze dei valori delle case in un'area geografica. La casa non è stata selezionata perché il raccoglitore di dati desidera sapere qualcosa sugli occupanti, ma perché è una casa indipendente con quattro camere da letto in una città di medie dimensioni. & Non è un dato personale.\\
+     \hline
+\end{tabular}
+\caption{Esempi di dati personali e non.}
+\label{table:table13-1}
+\end{table}
+
+\noindent \\Il fatto che un dato sia considerato personale dipende dal contesto: lo stesso dato, in mano a due fornitori diversi, può essere considerato per uno dato personale e per l'altro no. In generale se l'informazione è associata ad un individuo e permette di inferire qualcosa su di lui, allora è dato personale. 
+
+Il regolamento europeo per la protezione dei dati si applica solo nel momento in cui i dati vengono raccolti/processati. Se i dati raccolti sono anonimizzati, in teoria il GDPR non si applica, in quanto l'identità dell'individuo non dovrebbe essere presente. 
+
+\section{Obblighi per data controller/data processor}
+Il data controller e il data processor sono tenuti a rispettare una serie di obblighi:
+\begin{itemize}
+    \item Lawfulness;
+    \item Consenso;
+    \item Limitazione della finalità;
+    \item Minimizzazione dei dati;
+    \item Accuracy;
+    \item Storage Limitation;
+    \item Data Security;
+    \item Accountability.
+\end{itemize}
+
+\subsection{Lawfullnes}
+I data controller dei dati devono avere una base legale. Le basi legali possono essere sei:
+\begin{itemize}
+    \item Consenso: l'interessato ha prestato il consenso al trattamento dei propri dati personali per una o più specifiche finalità. Il data subject può revocare il consenso;
+    \item Contratto: il trattamento è necessario all'esecuzione di un contratto di cui l'interessato è parte o all'esecuzione di misure precontrattuali adottate su richiesta dello stesso;
+    \item Obbligo legale: il trattamento è necessario per adempiere un obbligo legale al quale è soggetto il titolare del trattamento;
+    \item Interesse vitale: il trattamento è necessario per proteggere gli interessi vitali dell'interessato o di un'altra persona fisica;
+    \item Interesse pubblico: il trattamento è necessario per l'esecuzione di un compito di interesse pubblico o connesso all'esercizio di pubblici poteri di cui è investito il responsabile del trattamento;
+    \item Interesse legittimo: il trattamento è necessario ai fini degli interessi legittimi perseguiti dal responsabile del trattamento o da terzi, a meno che tali interessi non siano superati dagli interessi o dai diritti dell'interessato (es: un'azienda con più filiali può inviare i dati tra le filiali).
+\end{itemize}
+
+\subsection{Consenso}
+Il consenso dell'utente deve essere libero, informato, specifico e inequivocabile. Nello specifico:
+\begin{itemize}
+    \item Libero: non dovrebbe essere generalmente una condizione preliminare per l'iscrizione a un servizio;
+    \item Specifico: bisogna chiedere il consenso per ciascuna finalità e attività di trattamento;
+    \item Informato: prima di chiedere il consenso si deve fornire una privacy policy (nome del data controller, nome di controller terzi che necessitano del consenso, scopo dell'elaborazione, attività per l'elaborazione, informare l'utente che può recedere il consenso in qualsiasi momento);
+    \item Indicazione inequivocabile: silenzio, caselle preselezionate o inattività non devono costituire consenso, è necessaria un'azione dell'utente.
+\end{itemize}
+
+\subsection{Limitazione della finalità}
+I dati personali devono essere raccolti per finalità determinate, esplicite e legittime e non ulteriormente trattati in modo incompatibile con tali finalità. I data controller devono:
+\begin{itemize}
+    \item Specificare gli scopi nell'informativa sulla privacy per le persone fisiche;
+    \item Specificare lo scopo o gli scopi del trattamento dei dati personali all'interno dei registri del trattamento;
+    \item Non trattare i dati per finalità incompatibili con le finalità iniziali.
+\end{itemize}
+
+\noindent Gli scopi compatibili sono scopi di archiviazione nell'interesse pubblico, scopi di ricerca scientifica o storica o scopi statistici.
+
+\subsection{Minimizzazione dei dati}
+I data controller devono garantire che i dati personali che stanno trattando siano:
+\begin{itemize}
+    \item Adeguati: sufficienti per adempiere correttamente allo scopo dichiarato;
+    \item Pertinenti: abbiano un legame razionale con tale scopo;
+    \item Limitati a ciò che è necessario: non vengono mantenuti per più del necessario a quello scopo.
+\end{itemize}
+
+\subsection{Accuracy}
+I dati personali devono essere esatti e aggiornati. Devono essere adottate tutte le misure ragionevoli per garantire che i dati personali inesatti, tenuto conto delle finalità per le quali sono trattati, siano cancellati o rettificati senza indugio.
+
+\subsection{Storage Limitation}
+I dati personali:
+\begin{itemize}
+    \item Devono essere conservati in una forma che consenta l'identificazione degli interessati per un arco di tempo non superiore a quello necessario agli scopi per i quali i dati personali sono trattati (es: invio curriculum all'azienda, se non mi assume non deve mantenere salvato il CV);
+    \item Possono essere conservati per periodi più lunghi nella misura in cui i dati personali saranno trattati esclusivamente a fini di archiviazione nel pubblico interesse, di ricerca scientifica o storica o a fini statistici.
+\end{itemize}
+
+\subsection{Data Security}
+I dati personali dovrebbero essere trattati in modo da garantire un'adeguata sicurezza dei dati personali, compresa la protezione contro il trattamento non autorizzato o illecito e contro la perdita, la distruzione o il danno accidentali, utilizzando misure tecniche o organizzative adeguate.
+
+\subsection{Accountability}
+I data controller dei dati devono essere in grado di dimostrare la loro conformità agli obblighi GDPR. Devono mettere in atto misure tecniche e organizzative adeguate per soddisfare le esigenze di Requisiti di responsabilità. Queste misure includono:
+\begin{itemize}
+    \item Adottare e attuare politiche di protezione dei dati;
+    \item Adottare un approccio basato sulla "protezione dei dati fin dalla progettazione e per impostazione predefinita";
+    \item Stipulare contratti scritti con organizzazioni che elaborano dati personali per conto del data controller;
+    \item Mantenere la documentazione delle attività di trattamento;
+    \item Attuare adeguate misure di sicurezza;
+    \item Registrare e, se necessario, segnalare violazioni dei dati personali;
+    \item Effettuare valutazioni d'impatto sulla protezione dei dati per gli usi dei dati personali che possono comportare un rischio elevato per gli interessi delle persone;
+    \item Nominare un data protection officer.
+\end{itemize}
+
+\subsection{Esempio}
+L'azienda X deve sviluppare un sito web per gestire le candidature. Questo deve permettere di cercare richieste di lavoro, creare account, aggiornare le informazioni personali, caricare CV e candidarsi per un'offerta di lavoro. Analizziamo il caso:
+\begin{itemize}
+    \item Data subject: candidati e recruiter;
+    \item Dati raccolti: username e password, CV, informazioni di contatto per le candidature;
+    \item Lawfulness: la base legale è il contratto;
+    \item Limitazione dello scopo: è ammessa solo la gestione delle candidature e la comunicazione agli utenti di offerte di lavoro;
+    \item Data minimization: il form online dovrebbe richiedere solo i dati necessari per gestire la candidatura;
+    \item Accuracy: si fornisce all'utente un'interfaccia per modificare i suoi dati;
+    \item Storage Limitation: i dati dei candidati respinti devono essere cancellati, a meno che non vi sia un obbligo di legge, i dati dei canditati accettati dovrebbero essere trasferiti all'HR;
+    \item Data Security: autenticazione a più fattori, role-based access control, cifratura dei dati inattivi.
+\end{itemize}
+
+
+\section{Diritti dell'utente}
+Il data subject dispone di una serie di diritti, quali:
+\begin{itemize}
+    \item Diritto a ricevere un'informativa sull'utilizzo dei dati dettagliata (trasparenza);
+    \item Diritto di accesso ai dati raccolti;
+    \item Diritto alla modifica dei dati, affinché sia aggiornati;
+    \item Diritto a richiedere l'eliminazione dei dati raccolti;
+    \item Diritto a richiedere che i dati non siano più processati, quando la base giuridica è diversa dal consenso;
+    \item Diritto a non essere soggetti a decisioni automatiche (uso di algoritmi di ML usati per profilare);
+    \item Diritto a trasferire i dati da un service provider ad un altro.
+\end{itemize}
+
+\subsection{Trasparenza}
+I data controller devono informare le persone sul trattamento dei loro dati in modo facilmente accessibile e comprensibile. Quando i dati vengono raccolti, i data controller devono fornire un'informativa sulla privacy contenente:
+\begin{itemize}
+    \item Il nome e i dettagli di contatto dell'organizzazione;
+    \item Lo scopo del trattamento;
+    \item La base giuridica del trattamento;
+    \item Le categorie di dati personali ottenuti;
+    \item I destinatari o le categorie di destinatari dei dati personali; 
+    \item I dettagli dei trasferimenti dei dati personali verso eventuali paesi terzi o organizzazioni internazionali;
+    \item I periodi di conservazione dei dati personali;
+    \item I diritti delle persone fisiche in relazione al trattamento.
+\end{itemize}
+
+\noindent Una delle tecniche usate per specificare le politiche è quella di usare più livelli (link che porta alla pagina che dettaglia maggiormente la politica). 
+
+\section{Riportare violazioni}
+Il GDPR impone che vanga notificato al garante della privacy il data breach entro 72 ore dal momento in cui lo si scopre. È richiesto inoltre che venga quantificato se vi è un rischio per gli individui vittime del data breach. Se il rischio è elevato è richiesto che vengano notificate anche le persone i cui dati personali sono stati resi pubblici. Questo implica che è necessario avere un sistema sviluppato di incident-response e incident-management, altrimenti l'organizzazione non è in grado di rispondere entro i tempo imposti dal GDPR.
+
+\section{Sanzioni previste dal GDPR}
+Il GDPR definisce due tipi di multe:
+\begin{itemize}
+    \item Multe per violazione dei principi sulla protezione dei dati personali che sono considerati di severità minore (es: non è stato nominato il data protection officer, non è stato notificato il garante entro le 72 ore del data breach);
+    \item Multe per violazione dei principi sulla protezione dei dati personali che sono considerati di severità maggiore (es: al soggetto non è consentito di visionare o cancellare i dati).
+\end{itemize}
+
+
+
+
+
+
+
+
+

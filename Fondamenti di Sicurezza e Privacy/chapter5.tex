@@ -168,7 +168,7 @@ Tecniche per rendere più difficile il riconoscimento e/o l'analisi:
     \item Time-based evasion techniques: per rallentare l'analisi o la scoperta del malware posso fare in modo che cifri i file solo in risposta a determinati eventi nel pc oppure inserire dei periodi di sleep nella fase di cifratura;
     \item Data evasion techniques: eliminano le tracce del malware dal pc della vittima (es: file di config, log, ...). Per evitare l'analisi posso usare anche le tecniche di anti-dump: generalmente per analizzare in un malware si aspetta che venga caricato tutto in memoria e poi, con sw specifici, viene scaricato. Tento di impedire questa tecnica per bloccare l'analisi.
     \item Code evasion techniques: prevedono tecniche di anti-debugging, anti-disassembling (es: cifro il ransomware, aggiungo offuscamento impacchetto il malware per evitare il disassemblaggio per la generazione del codice macchina) e anti-sandboxing (es: blocco o modifico il comportamento del malware se eseguito su una macchina virtuale -> controllo il mac address per capire se sono in un macchina virtuale in quanto vmware e virtualbox usano pattern specifici) per evitare l'analisi 
-    \item Network evasion techniques: cifra, anonimizzano il traffico (usando reti anonime) o cambiano l'indirizzo IP del C&C (domain shadowing);
+    \item Network evasion techniques: cifra, anonimizzano il traffico (usando reti anonime) o cambiano l'indirizzo IP del C\&C (domain shadowing);
 \end{itemize}
 
 \paragraph{Fase di delivery}

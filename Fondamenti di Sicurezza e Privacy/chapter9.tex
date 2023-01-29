@@ -12,19 +12,14 @@ Il protocollo prevede la presenza di un Authorization Server che rilascia all'ap
 \begin{itemize}
     \item Owner delle risorse, che è l'entità che può garantire l'accesso alla risorsa;
     \item Resource Server, che è il server che ospita le risorse dell'utente;
-    \item Authorization Server, che è il server che rilascia il token di accesso al client dopo aver autenticato il proprietario della risorsa e ottenuto l'autorizzazione;
+    \item Authorization Server, che è il server che rilascia l'access token al client dopo aver autenticato il proprietario della risorsa e ottenuto l'autorizzazione;
     \item Client, che è l'app di terze parti che l'utente usa per accedere alle risorse.
 \end{itemize}
 
 \noindent Scenario tipico: voglio accedere a Spotify tramite le credenziali Facebook. Le risorse protette sono le mie credenziali Facebook.
 \\
 
-\noindent Il protocollo supporta 5 casi differenti \footnote{Versione 2020-2021: \noindent Il protocollo supporta 5 scenari differenti a seconda del ruolo dell'applicazione client:
-\begin{enumerate}
-    \item Il client è rilasciato da un service provider differente da quello che fornisce l'Authorization Server;
-    \item Il client è fornito dallo stesso fornitore dell'Authorization Server;
-    \item Il client accede ai dati per conto di se stesso. Non c'è quindi un utente che deve concedere l'accesso alle risorse.
-\end{enumerate}}:
+\noindent Il protocollo supporta 5 casi differenti:
 \begin{enumerate}
     \item \textbf{Authorization Code Grant Flow};
     \item \textbf{Authorization Code Grant Flow with PCKE};
@@ -34,148 +29,153 @@ Il protocollo prevede la presenza di un Authorization Server che rilascia all'ap
 \end{enumerate}
 
 \section{Authorization Code Grant Flow}
+Usata quando si accede a un'applicazione usando un account Google o Facebook.
 
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/8.png}
-\end{center}
-    
-\noindent Inizio registrando il client con cui voglio accedere alla risorsa. L'app mi redirige all'interfaccia fornita dall'Authorization Server. Nella richiesta di registrazione vengono specificate tre cose: 
+\subsection{Flusso}
+Il client reindirizza l'utente al server di autorizzazione con i seguenti parametri nella stringa di query:
 \begin{itemize}
-    \item Il nome del client (My Banck App); 
-    \item L'URI del redirect per dire all'app dove redirigere l'utente una volta che ha concesso l'accesso alla risorsa;
-    \item  Il tipo di autorizzazione che viene implementata.
+    \item \textbf{response\_type} con il valore \textbf{code};
+    \item \textbf{client\_id} con l'identificatore del client;
+    \item \textbf{redirect\_uri} con l'URI di reindirizzamento del client. Questo parametro è facoltativo, ma se non viene inviato l'utente verrà reindirizzato a un URI di reindirizzamento preregistrato.
+    \item \textbf{scope} con un elenco di scope;
+    \item \textbf{state} con una stringa casuale usata per prevenire attacchi (token CSRF). 
 \end{itemize}
 
-\noindent A questo punto l'Authorization Server manda due info:
+\noindent Tutti questi parametri verranno convalidati dal server di autorizzazione. All'utente verrà quindi chiesto di accedere al server di autorizzazione e approvare il client.
+
+Se l'utente approva il client, verrà reindirizzato dal server di autorizzazione al client (in particolare all'URI di reindirizzamento) con i seguenti parametri nella stringa di query:
 \begin{itemize}
-    \item Un identificativo dell'applicazione, che è pubblico;
-    \item Un segreto che deve essere condiviso tra l'Authorization Server e l'app.
+    \item \textbf{code} con il codice di autorizzazione;
+    \item \textbf{state} con il parametro \textbf{state} inviato nella richiesta originale. È consigliabile confrontare questo valore con il valore archiviato nella sessione dell'utente per assicurarsi che il codice di autorizzazione ottenuto risponda alle richieste effettuate da questo client anziché da un'altra applicazione client.
 \end{itemize}
 
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/9.png}
-\end{center}
-
-\noindent A questo punto l'utente, tramite il client, richiede all'Authorization Server di accedere alla risorsa, specificando nella richiesta:
+\subsection{Flusso (pt. 2)}
+Il client invierà ora una richiesta POST al server di autorizzazione con i seguenti parametri:
 \begin{itemize}
-    \item Cosa si aspetta dall'Authorization Server -> si aspetta un access token;
-    \item Il client id del client, ottenuto in precedenza;
-    \item Il redirect URI su cui il Server deve redirigere il client;
-    \item Il permesso o la risorsa a cui l'utente vuole accedere (scope);
-    \item Un numero casuale per prevenire attacchi. 
+    \item \textbf{grant\_type} con il valore di \textbf{authorization\_code};
+    \item \textbf{client\_id} con l'identificatore del client;
+    \item \textbf{client\_secret} con il segreto client;
+    \item \textbf{redirect\_uri} con lo stesso URI di reindirizzamento a cui l'utente è stato reindirizzato;
+    \item \textbf{code} con il codice di autorizzazione dalla stringa di query.
 \end{itemize}
 
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/10.png}
-\end{center}
-
-\noindent L'utente di autentica sull'Authorization Server e, una volta autenticato, gli viene generato un authentication code che rappresenta la prova che l'utente è chi dice di essere. 
-
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/11.png}
-\end{center}
-
-\noindent L'utente può richiedere l'access token, specificando:
+\noindent Il server di autorizzazione risponderà con un oggetto JSON contenente le seguenti proprietà:
 \begin{itemize}
-    \item L'authorization code;
-    \item Il redirect URI;
-    \item Il client ID;
-    \item Il segreto inviato dall'Authorization Server.
+    \item \textbf{token\_type} questa sarà di solito la parola "Bearer" (per indicare un token al portatore);
+    \item \textbf{expires\_in} con un numero intero che rappresenta il TTL del token di accesso (ovvero quando il token scadrà);
+    \item \textbf{access\_token} con token di accesso stesso
+    \item \textbf{refresh\_token} con un refresh token che può essere utilizzato per acquisire un nuovo token di accesso alla scadenza dell'originale.
 \end{itemize}
-
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/12.png}
-\end{center}
-
-\noindent Il Server rilascia l'access token (con associata una validità temporale) e un refresh token, che può essere presentato al server per ottenere un nuovo access token senza dover rieseguire i passaggi precedenti.
-  
-\begin{center}
-    \includegraphics[width=0.7\textwidth]{images/13.png}
-\end{center}
 
 \noindent A questo punto il client presenta l'access token all'Authorization Server, che fornisce la risorsa all'app.
 
 Questo processo è applicato a tutte le app native (es: su cellulare) o web app in cui il fornitore del client è diverso dal fornitore della risorsa.
 
 \section{Authorization Code Flow with PCKE}
-
-
-
-
-
-
-
-
-
-
-
-
-\subsection{Caso 2}
-Supponiamo che l'utente voglia usare l'app gmail per accedere alle sue mail sull'account Google.
-\\
-
-\noindent L'utente si autentica con il suo account Google e invia la richiesta a Google, dove specifica:
+Simile all'Authorization Code Flow, ma presenta due differenze fondamentali:
 \begin{itemize}
-    \item Il suo account;
-    \item La risorsa a cui vuole accedere (scope);
-    \item Il client ID che è stato assegnato all'app quando ha fatto accesso con l'account.
+    \item È usato in client basati su user-agent (ad esempio app Web a pagina singola) che non possono mantenere segreto un client perché tutto il codice dell'applicazione e l'archiviazione sono facilmente accessibili;
+    \item L'authorization server ritorna direttamente l'access token piuttosto che in codice di autorizzazione da scambiare per l'access token.
 \end{itemize}
 
-\begin{lstlisting}
-    POST https://Google.com/oauth2/token  
-    grant_type=password&  
-    client_id=<client id>&  
-    username=johhdoe&  
-    password=A4dm1kl  
-    scope=email
-\end{lstlisting}
+\subsection{Flusso}
+Il client reindirizza l'utente al server di autorizzazione con i seguenti parametri nella stringa di query:
+\begin{itemize}
+    \item \textbf{response\_type} con il valore "token";
+    \item \textbf{client\_id} con l'identificatore del client;
+    \item \textbf{redirect\_uri} con l'URI di reindirizzamento del client. Questo parametro è facoltativo, ma se non viene inviato l'utente verrà reindirizzato a un URI di reindirizzamento preregistrato;
+    \item \textbf{scope} con un elenco di scope delimitato da spazi;
+    \item \textbf{state} con un token CSRF.
+\end{itemize}
 
-\noindent Google invia l'access token (se l'autenticazione ha avuto successo) e il refresh token.
+\noindent Tutti questi parametri verranno convalidati dal server di autorizzazione. All'utente verrà quindi chiesto di accedere al server di autorizzazione e approvare il client.
 
-\begin{lstlisting}
-    POST HTTP/1.1 200 OK  
-    Content-Type: application/json;charset=UTF-8  
-    {  
-    "access_token":"2YotnFZFEjr1zCsicMWpAA",  
-    "token_type":”bearer",  
-    "expires_in":3600,  
-    "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA”  
-    }
-\end{lstlisting}
+Se l'utente approva il client, verrà reindirizzato al server di autorizzazione con i seguenti parametri nella stringa di query:
+\begin{itemize}
+    \item \textbf{token\_type} con il valore "Bearer";
+    \item \textbf{expires\_in} con un numero intero che rappresenta il TTL del token di accesso;
+    \item \textbf{access\_token} con l'access token stesso;
+    \item \textbf{state} con il parametro state inviato nella richiesta originale.
+\end{itemize}
 
-\noindent L'utente richiede l'accesso a gmail inviando al Server l'access token.
+\noindent Questa soluzione non restituisce un refresh token perché il browser non ha mezzi per mantenerlo privato.
 
-\begin{lstlisting}
-    curl –H “Authorization: bearer 2YotnFZFEjr1zCsicMWpAA” \  
-    https://Google.com/gmail
-\end{lstlisting}
+\section{Resource Owner Password}
+Questa soluzione è usata client first party affidabili sia sul Web che nelle applicazioni per dispositivi nativi.
 
-\noindent Il server verifica alla validità e consente l'accesso.
+\subsection{Flusso}
+Il client chiede all'utente le credenziali di autorizzazione (di solito un nome utente e una password). Il client invia quindi una richiesta POST con i seguenti parametri del corpo al server di autorizzazione:
+\begin{itemize}
+    \item \textbf{grant\_type} con il valore "password";
+    \item \textbf{client\_id} con l'ID del client;
+    \item \textbf{client\_secret} con il segreto del client;
+    \item \textbf{scope} con un elenco delimitato delle autorizzazioni richieste;
+    \item \textbf{username} con il nome utente dell'utente;
+    \item \textbf{password} con la password dell'utente.
+\end{itemize}
 
-\subsection{Caso 3}
-Non è presente nessun utente, ma un app che accede alle risorse per se stessa.
+\noindent Il server di autorizzazione risponderà con un oggetto JSON contenente le seguenti proprietà:
+\begin{itemize}
+    \item \textbf{token\_type} con il valore "Bearer";
+    \item \textbf{expires\_in} con un numero intero che rappresenta il TTL del token di accesso;
+    \item \textbf{access\_token} con il token di accesso stesso;
+    \item \textbf{refresh\_token} con un refresh token che può essere utilizzato per acquisire un nuovo token di accesso alla scadenza dell'originale.
+\end{itemize}
 
-L'app si registra sull'Authentication Server per ottenere un identificativo e un segreto.
+\section{Client Credential}
+La più semplice di tutte le concessioni OAuth 2.0, questa soluzione è adatta per l'autenticazione da computer a computer in cui non è richiesta l'autorizzazione di un utente specifico per accedere ai dati.
 
-\begin{lstlisting}
-    POST https://Google.com/oauth2/token  
-    grant_type=client_credential&  
-    client_id=<client id>&  
-    client_secret=<client secret>
-\end{lstlisting}
+\subsection{Flusso}
+Il client invia una richiesta POST con i seguenti parametri al server di autorizzazione:
+\begin{itemize}
+    \item \textbf{grant\_type} con il valore "client\_credentials";
+    \item \textbf{client\_id} con l'ID del cliente;
+    \item \textbf{client\_secret} con il segreto del cliente;
+    \item \textbf{scope}.
+\end{itemize}
 
-\noindent Utilizzando le info ricevute richiede al Server l'access token.
+\noindent Il server di autorizzazione risponderà con un oggetto JSON contenente le seguenti proprietà:
+\begin{itemize}
+    \item \textbf{token\_type} con il valore "Bearer";
+    \item \textbf{expires\_in} con un numero intero che rappresenta il TTL del token di accesso;
+    \item \textbf{access\_token} con il token di accesso stesso.
+\end{itemize}
 
-\begin{lstlisting}
-    HTTP/1.1 200 OK  
-    Content-Type: application/json;charset=UTF-8  
-    {  
-    "access_token":"2YotnFZFEjr1zCsicMWpAA",  
-    "token_type":”bearer",  
-    "expires_in":3600,  
-    }
-\end{lstlisting}
- 
-\noindent  L'app può usare ora il token per accedere alle risorse.
- 
+\section{Device flow}
+Vedere PDF.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  

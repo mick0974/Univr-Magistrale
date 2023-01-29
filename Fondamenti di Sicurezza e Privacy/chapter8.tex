@@ -38,11 +38,21 @@ Ogni volta che l'utente vuole accedere ad un servizio online, verifica la sua id
 I sistemi di identità digitale permettono di implementare il concetto di SSO: un utente può riutilizzare lo stesso set di credenziali per accedere a più risorse/servizi online. Tipicamente l'utente, quando richiede l'accesso ad un servizio online, viene ridiretto sulla pagina dell'identity provider che gli ha rilasciato l'identità digitale, dove questo gli verifica l'identità. Se l'identità è verificata con successo, l'identity provider rilascia un'asserzione che l'autenticazione è avvenuta con successo e la inoltra al fornitore. Il fornitore verifica la validità dell'asserzione e decide se garantire l'accesso all'utente. 
 \\
 
-\noindent \underline{Esempi di SSO}
+\noindent Nelle figure \ref{fig:8-1} e \ref{fig:8-2} sono riportati degli esempio di SSO.
 
-![[]] {Il service provider è anche l'identity provider}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/8-1.png}
+    \caption{Il service provider è anche l'identity provider.}
+    \label{fig:8-1}
+\end{figure}
 
-![[]] {Il service provider è diverso dall'identity provider}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/8-2.png}
+    \caption{Il service provider è diverso dall'identity provider.}
+    \label{fig:8-2}
+\end{figure}
 
 \section{Identità federata}
 L'identità federata sta alla base degli SSO cross domain. In questo caso diversi service provider decidono di fidarsi del processo di autenticazione effettuato da un altro service provider che fa parte della stessa federation. Qualsiasi entità della federazione può svolgere il ruolo di identity provider. 
@@ -73,11 +83,16 @@ Per implementare i sistemi di identità federate, è necessario un meccanismo st
 
 Il protocollo usato è SAML (Security Assertion Markup Language). Si tratta di un protocollo xml che consente agli identity provider e ai servide provider di scambiarsi attributi identificativi degli utenti e/o asserzioni per indicare che il processo di autenticazione ha avuto successo. 
 
-Un tipico caso in cui il protocollo viene usato è quello della cross autentication.
+Un tipico caso in cui il protocollo viene usato è quello della cross autentication (\ref{fig:8-3}).
 
-![[]]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/8-3.png}
+    \caption{La SAML Authenticatio Assertion di Goolge (prodotta in seguito alla request di Dropbox) specificherà quando è avvenuto il processo di autenticazione dell'utente, con quale modalità e per quanto tempo è valida l'autenticazione.}
+    \label{fig:8-3}
+\end{figure}
 
-La SAML Authenticatio Assertion di Goolge (prodotta in seguito alla request di Dropbox) specificherà quando è avvenuto il processo di autenticazione dell'utente, con quale modalità e per quanto tempo è valida l'autenticazione. 
+
 
 \subsection{Asserzioni SAML}
 

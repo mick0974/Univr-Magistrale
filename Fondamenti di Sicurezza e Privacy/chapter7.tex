@@ -77,20 +77,32 @@ Dove sono memorizzate le password?
     	\end{itemize}
 \end{itemize}
 
-\noindent Generalmente un password file memorizza quattro parametri per le password (separati da $:$):
+\noindent Generalmente un password file memorizza quattro parametri per le password (figura \ref{fig:7-1}):
 \begin{itemize}
     \item Utente;
     \item SID;
     \item Due Hash.
 \end{itemize}
 
-![[]]
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/7-1.png}
+    \caption{Esempio di password file.}
+    \label{fig:7-1}
+\end{figure}
 
-\noindent Salva quindi il nome dell'utente, un SID associato a tale nome e due hash della password, create tramite due algoritmi differenti:
+\noindent Salva quindi il nome dell'utente, un SID associato a tale nome e due hash della password, create tramite due algoritmi differenti (figura \ref{fig:7-2}):
 \begin{itemize}
-    \item LM: usato da sistemi windows fino alla versione XP. Crea hash a 128 bit ma utilizza un character set set di 142 caratteri e accetta password si max 14 caratteri. Divide la password in due sottostringhe di 7 caratteri e non è case sensitive (genera lo stesso hash se le due password sono uguali ma una con caratteri maiuscoli e una minuscoli);
+    \item LM: usato da sistemi Windows fino alla versione XP. Crea hash a 128 bit ma utilizza un character set set di 142 caratteri e accetta password si max 14 caratteri. Divide la password in due sottostringhe di 7 caratteri e non è case sensitive (genera lo stesso hash se le due password sono uguali ma una con caratteri maiuscoli e una minuscoli);
     \item NTLM: introdotto successivamente e più sicuro. Crea hash a 128 bit ma utilizza tutti i caratteri ASCII e accetta password di max 256 caratteri. Non divide la password ed è case sensitive.
 \end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/7-2.png}
+    \caption{Algoritmo LM e nTLM.}
+    \label{fig:7-2}
+\end{figure}
 
 \noindent Per motivi di compatibilità, nelle versioni più recenti di Windows, sono presenti entrambi gli hash. 
 
@@ -103,8 +115,6 @@ Dove sono memorizzate le password?
     \item Cifra separatamente le due sottostringhe;
     \item Combina i due risultati.
 \end{itemize}
-
- ![[]]
 
  \paragraph{Principali attacchi offline}
  I principali attacchi offline sono tre: 
