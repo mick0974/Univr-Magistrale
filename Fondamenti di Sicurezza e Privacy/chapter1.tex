@@ -119,8 +119,7 @@ L'attacco ha compromesso il processo di aggiornamento del software, andando ad i
 \begin{enumerate}
     \item Infiltrazione iniziale: gli attaccanti hanno raccolto info su SolarWinds e in particolare hanno hanno fatto reconnaissance sfruttando una vulnerabilità del Microsoft Exchenge Server (che gestisce le comunicazione di posta elettronica). Grazie a questa sono riusciti ad accedere alla mail dei dipendenti e recuperare le credenziali di accesso. Da questo sono riusciti a monitorare le comunicazioni e capire come funzionava il sistema di aggiornamento di Orion;
     \item Spear phishing: gli attaccanti hanno attuato una campagna di spear phishing contro i dipendenti che avevano accesso ai server usati per effettuare gli aggiornamenti e le loro distribuzione. Le mail contenevano una allegato malevolo che andava a installare un malware sulle macchine. Questo malware andava a monitorare i processi in esecuzione sulle macchine dedicati alla compilazione degli aggiornamenti e al caricamento delle build sul server degli aggiornamenti. Una volta identificato il processo di aggiornamento, il malware è andato a copiare un secondo malware (la vera arma) in più file coinvolti nel processo di aggiornamento;
-    \item Weaponization: quando i clienti aggiornavano Orion, andavano a scaricare l'aggiornamento malevolo che conteneva una backdoor che dava accesso di amministratore agli attaccanti. Il malware, una volta scaricato, restava dormiente per 2 settimane prima di tentare di comunicare con Command and Control server in attesa di comandi dagli attaccanti;
-    \item 
+    \item Weaponization: quando i clienti aggiornavano Orion, andavano a scaricare l'aggiornamento malevolo che conteneva una backdoor che dava accesso di amministratore agli attaccanti. Il malware, una volta scaricato, restava dormiente per 2 settimane prima di tentare di comunicare con Command and Control server in attesa di comandi dagli attaccanti. 
 \end{enumerate}
 
 

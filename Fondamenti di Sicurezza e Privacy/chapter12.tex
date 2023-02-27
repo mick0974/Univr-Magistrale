@@ -1,6 +1,6 @@
 \chapter{Introduzione alla privacy}
 
-Tutto ciò che facciamo online lascia una traccia che è memorizzatile e analizzabile da chi tiene traccia di chi raccoglie i dati personali.
+Tutto ciò che facciamo online lascia una traccia che è memorizzatile e analizzabile da chi raccoglie i dati personali.
 
 \paragraph{Surveillance Capitalism} Generalmente, tutte le informazione raccolte su di noi vengono date in pasto ad algoritmi di machine learning che le usano per predire il nostro comportamento. In questo modo, i venditori di servizi possono proporci prodotti in linea con i nostri interessi.
 
@@ -20,21 +20,21 @@ Non è semplice definire la privacy in quanto è un concetto che può avere un s
     \item "Privacy come integrità contestuale": lega la definizione di privacy alla nozione di contesto (in un contesto potrebbe essere appropriato condividere info personale, in altre no.  L’appropriatezza è data da da norme);
     \item Trasparenza, finalità, proporzionalità, responsabilità (dal GDPR):
     \begin{itemize}
-        \item Trasparenza: quando un data controller raccoglie i dati, deve specificare per quale motivo li raccoglie e come li tratterà o condividerà.
+        \item Trasparenza: quando un data controller raccoglie i dati, deve specificare quali dati raccoglie e come li tratterà o condividerà.
         \item Purpose: deve specificare il motivo per cui li raccoglie
         \item Proporzionalità: devono essere proporzionali e finalizzati al purpose; non devo raccogliere più dati del necessario
-        \item Accountability: il data controller deve mantenere tracia di chi ha accesso ai dati.
+        \item Accountability: il data controller deve mantenere traccia di chi ha accesso ai dati.
     \end{itemize}
 \end{itemize}
 
 \section{Proprietà della privacy}
 Le proprietà della privacy vengono suddivise in base a due macro definizioni di privacy:
 \begin{itemize}
-    \item Hard privacy: parte dall'assunzione che il data controller non è un'entità di cui ci si può fidare e quidni l'individuo deve condividere con lui il minor numero di dati sensibili. Sarà l'utente a dover adottare tutte le tecniche per proteggere la propria privacy (es: cifratura);
+    \item Hard privacy: parte dall'assunzione che il data controller non è un'entità di cui ci si può fidare e quindi l'individuo deve condividere con lui il minor numero di dati sensibili. Sarà l'utente a dover adottare tutte le tecniche per proteggere la propria privacy (es: cifratura);
     \item Soft privacy: l'utente si fida del data controller e quindi è lui a dover adottare tutte le tecniche possibili per minimizzare i rischi per l'utente. Ovviamente in questo caso è più difficile per l'utente avere controllo su come i suoi dati vengono processati o suddivisi dal data controller.
 \end{itemize}
 
-\noindent In figura sono riportate le proprietà definite per le due definizioni.
+\noindent In figura \ref{fig:12-1} sono riportate le proprietà definite per le due definizioni.
 
 \begin{figure}
     \centering
@@ -43,10 +43,10 @@ Le proprietà della privacy vengono suddivise in base a due macro definizioni di
     \label{fig:12-1}
 \end{figure}
 
-\noindent Le proprietà sono state definite rispetto ad un preciso modello di attaccante: abbiamo un sistema dove doversi attori possono compiere azioni e un attaccante che vuole monitorare le azioni eseguite dagli utenti. In particolare, l'obiettivo dell'attaccante è inferire gli \textbf{item of interest}, informazioni di interesse per l'attaccante (es: contenuto del messaggio, chi è il mettente, chi è il ricevente, ...).
+\noindent Le proprietà sono state definite rispetto ad un preciso modello di attaccante: abbiamo un sistema dove diversi attori compiono azioni e un attaccante monitora le azioni eseguite dagli utenti. In particolare, l'obiettivo dell'attaccante è inferire gli \textbf{item of interest}, informazioni di interesse per l'attaccante (es: contenuto del messaggio, chi è il mettente, chi è il ricevente, ...).
 
 \subsection{Anonimity}
-Abbiamo anonimità quando un attaccante non può identificare l'attore all'interno di un gruppo di attori (\textbf{anonimity set}). Praticamente abbiamo anonimità quando, all'interno del sistema, non deve essere possibile legate l'identità di uno degli attori ad un determinato item of interest.
+Abbiamo anonimità quando un attaccante non può identificare l'attore all'interno di un gruppo di attori (\textbf{anonimity set}). Praticamente abbiamo anonimità quando, all'interno del sistema, non è possibile legate l'identità di uno degli attori ad un determinato item of interest.
 
 Ad esempio, un attaccante non riesce a determinare quale attore ha spedito o ricevuto un messaggio.
 
@@ -76,7 +76,7 @@ Questa proprietà può essere desiderabile, ad esempio, nei sistemi di online vo
 Prevede che sia responsabilità del data controller proteggere i dati da un accesso non autorizzato. In pratica si traduce nella cifratura dei dati o nell'utilizzo di meccanismi di controllo dell'accesso.
 
 \subsection{Compliance}
-É legata al rispettare o principi dettati dalle leggi sulla protezione dei dati personale, come i principi dettati dal GDPR.
+É legata al rispettare i principi dettati dalle leggi sulla protezione dei dati personale, come i principi dettati dal GDPR.
 
 \subsection{Awareness}
 Più legata all'utente che al data controller, prevede che l'utente sia messo a conoscenza della conseguenza del condividere informazioni (es: l'utente posta la foto della carta di credito online senza nascondere i codici). Si focalizza sul garantire che, quando l'utente condivide i propri dati personali, lo faccia in maniera coscienziosa. 
@@ -202,7 +202,7 @@ Hanno l'obiettivo di soddisfare l'anonimità. Alcuni esempi possono essere:
 
 \begin{itemize}
     \item Memorizzazione sicura sul cloud: PrivateStorage fornisce una cifratura lato client. I dati sono cifrati prima di uploadare e la chiave simmetrica è conosciuta solo dal client;
-    \item Searchable encryption: consente di ricercare se un documenti cifrato contiene determinate parole chiave e di recuperare questi documenti che poi vengono decifrate dal client. Si sua quando l'utente cifra i dati prima di uploadarli. Si evita di dover scaricare tutti i dati, decifrarli e ricercare il documento che serve;
+    \item Searchable encryption: consente di ricercare se un documenti cifrato contiene determinate parole chiave e di recuperare questi documenti che poi vengono decifrate dal client. Si usa quando l'utente cifra i dati prima di uploadarli. Si evita di dover scaricare tutti i dati, decifrarli e ricercare il documento che serve;
     \item Computazioni su dati cifrati: Homomorfic encryption (poco usata in quanto poco efficiente) o Secure multiparty computation (un insieme di utenti che vogliono calcolare una determinata funzione sulla base di input di ciascun utente, ma vogliono anche mantenere privati gli input).
 \end{itemize}
 

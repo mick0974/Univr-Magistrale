@@ -19,7 +19,7 @@ La seconda misura di protezione fondamentale è quella dei sistemi di controllo 
 
 \noindent Le politiche per il controllo dell'accesso specificano le condizioni che l'utente deve rispettare per accedere al sistema. Queste vengono formalizzate secondo un modello per il controllo dell'accesso e vengono applicate tramite un meccanismo di controllo dell'accesso, che è rappresentato da un'architettura con più componenti logici che sono responsabili di decidere se l'accesso è garantito o negato.
 
-Un sistema di controllo degli accessi ha tre elementi fondamentali:
+\noindent Un sistema di controllo degli accessi ha tre elementi fondamentali:
 \begin{itemize}
     \item L'utente autenticato che richiede l'accesso a determinate risorse o servizi;
     \item Le risorse a cui viene ristretto l'accesso;
@@ -82,8 +82,8 @@ Lo standard che implementa l'Attribute Based Access Control è l'eXtensible Acce
 
 \noindent L'architettura è formata da quattro elementi fondamentali:
 \begin{itemize}
-    \item Policy Enforcement Point (PEP), che intercetta le richieste di accesso da parte dell'applicazione dell'utente e le redirige al POP;
-    \item Policy Decision Point (POP), che valuta la richiesta secondo le policy di accesso decise e gli attributi ricevuti;
+    \item Policy Enforcement Point (PEP), che intercetta le richieste di accesso da parte dell'applicazione dell'utente e le redirige al PDP;
+    \item Policy Decision Point (PDP), che valuta la richiesta secondo le policy di accesso decise e gli attributi ricevuti;
     \item Policy Amministration Point (PAP), che è usata per configurare le politiche di controllo dell'accesso da parte dell'amministratore di sistema;
     \item Policy Information Point (PIP), che fornisce gli attributi sul soggetto, sulla risorsa o sul contesto al PDP.
 \end{itemize}
@@ -94,7 +94,7 @@ Lo standard che implementa l'Attribute Based Access Control è l'eXtensible Acce
     \item L'utente richiede l'accesso ad una determinata risorsa;
     \item La richiesta viene intercettata dal PEP, che la redirige al Context Handler (altro componente sw). Non è sempre presente, ma viene usato quando le richieste non vengono formulate direttamente nel linguaggio supportato dallo standard. Il CH traduce la richiesta e la invia al al PDP;
     \item Il PDP può richiedere al CH di fornirgli gli attributi necessari per decidere se garantire o meno la richiesta. Il CH contatta il PIP che li recupera (ad esempio dal sistema di gestione dell'identità digitale dell'azienda);
-    \item Il PIP decide se concedere l'accesso oppure no basandosi sugli attributi e le condizioni della policy e restituisce la risposta al PEP. Nella risposta è possibile includere le Obbligazioni, che sono azioni che devono essere obbligatoriamente eseguite dal PEP nel momento in cui garantisce l'accesso al soggetto (es: inviare una mail all'owner della risorsa per notificare l'accesso, creare un log per tenere traccia dell'accesso, ...).
+    \item Il PDP decide se concedere l'accesso oppure no basandosi sugli attributi e le condizioni della policy e restituisce la risposta al PEP. Nella risposta è possibile includere le Obbligazioni, che sono azioni che devono essere obbligatoriamente eseguite dal PEP nel momento in cui garantisce l'accesso al soggetto (es: inviare una mail all'owner della risorsa per notificare l'accesso, creare un log per tenere traccia dell'accesso, ...).
 \end{itemize}
 
 \noindent Esistono più modi in cui è possibile implementare le quattro componenti. Per esempio è possibile avere uno scenario centralizzato, in cui le componenti sono posizionate all'interno della stessa organizzazione. Qui potrei avere quattro server in cui girano ciascuna delle componenti.
@@ -102,13 +102,13 @@ Lo standard che implementa l'Attribute Based Access Control è l'eXtensible Acce
 Posso avere anche il caso in cui le componenti sono tutte in outsurcing, come negli scenari cloud. Qui invece di implementare all'interno della rete dell'organizzazione, il PDP e il PEP sono fornite dal cloud provider. L'unica possibilità che viene data all'organizzazione è quella di configurare le politiche che regolano l'accesso alle risorse.
 
 \subsection{Specifica delle politiche}
-Esistono due componenti principali per specificare le politiche:
+Gli elementi principali sono:
 \begin{itemize}
-    \item L'elemento policy;
-    \item Le regole.
+    \item \textbf{<PolicySet>} aggrega altre <PolicySet> o <Policy>;
+    \item \textbf{<Policy>} si compone di <Target>, <Rule> e <Obligation> ed è valitato dal PDP per decidere se concedere l'accesso o meno;
+    \item \textbf{<Rule>} fornisce le condizioni che verificano gli attributi della policy;
+    \item \textbf{<Target>} associa una risorsa richiesta ad una policy applicabile.
 \end{itemize}
-
-\noindent Una policy che si applica ad una determinata risorsa è costituita da una o più regole. Ciascuna regola non può però essere valutata da sola, ma deve essere valutata come elemento policy (non ci sarà mai una decisione che si basa su una regola). 
 
 \begin{lstlisting}
     <Policy>  
@@ -136,11 +136,19 @@ Esistono due componenti principali per specificare le politiche:
     </Rule> 
 \end{lstlisting}
 
-\noindent Ciascuna regola dispone di un elemento `<target>` che associa una risorsa richiesta ad una policy applicabile. Può contenere uno o più di questi elementi:
+\noindent L'elemento \textbf{<Target>} può contenere uno o più di questi elementi:
 \begin{itemize}
-    \item \textbf{<match>} che specifica le condizioni rispetto al soggetto, alla risorsa e alle azioni;
-    \item \textbf{<AnyOf>} che funziona come OR logico per le condizioni, quindi mi basta soddisfare una sola condizione specificata in `<match>`;
-    \item \textbf{<AllOF>} che indica che tutte le condizioni specificate in \textbf{<match>} devono essere soddisfatte.
+    \item \textbf{<Match>} specifica le condizioni rispetto al soggetto, alla risorsa e alle azioni;
+    \item \textbf{<AllOF>} indica che tutte le condizioni specificate in \textbf{<match>} devono essere soddisfatte.
+    \item \textbf{<AnyOf>} funziona come OR logico per le condizioni, quindi basta soddisfare una sola condizione specificata in \textbf{<Match>}.
+\end{itemize}
+
+\noindent L'elemento \textbf{<Rule>} si compone degli elementi:
+\begin{itemize}
+    \item Target: condizioni per determinare se la regola è applicabile ad una richiesta;
+    \item Effect: conseguenza della valutazione a vero di una regola;
+    \item Condition: espressione booleana che raffina l'applicazione di una policy;
+    \item Obligation (opzionale): azioni da eseguire contenstaulmente all'approvazione di una richiesta.
 \end{itemize}
 
 \begin{lstlisting}
@@ -161,8 +169,8 @@ Questi algoritmi specificano come i risultati derivanti dalla valutazione delle 
 \begin{itemize}
     \item \textbf{Deny-overrides}: se una regola ritorna \textit{deny} allora la valutazione della politica sarà anch'essa \textit{deny} e quindi l'accesso sarà negato;
     \item \textbf{Permit-overrides}: se una regola ritorna \textit{permit} allora la valutazione della politica sarà anch'essa \textit{permit} e quindi l'accesso sarà consentito;
-    \item \textbf{First-applicable}: ogni regola viene valutata nell'ordine in cui è listata nella policy. Per una particolare regola, se il \textbf{<target>} metcha la \textbf{<condition>} valutata a Permit, Deny o Indeterminate, allora tale risultato sarà anche il risultato della policy;
-    \item \textbf{First-applicable}: applicabile solo a PolicySet:
+    \item \textbf{First-applicable}: ogni regola viene valutata nell'ordine in cui è listata nella policy. Il risultato è l'effetto della prima regola/polivy il cui target si valuta a vero;
+    \item \textbf{Only-one-applicable}: applicabile solo a PolicySet:
         \begin{enumerate}
             \item  Se nessuna Policy è applicabile, allora il risultato è NotApplicable;
         	\item  Se una o più policy sono applicabili allora il risultato è Indeterminate;
@@ -170,8 +178,19 @@ Questi algoritmi specificano come i risultati derivanti dalla valutazione delle 
         \end{enumerate}
 \end{itemize}
 
+\subsection{Richieste e risposte}
+Una \textbf{<Request>} contiene:
+\begin{itemize}
+    \item \textbf{<Attributes>} specifica gli attributi del soggetto, risorsa e ambiente;
+    \item Una categoria che specifica a cosa sono associati gli attributi;
+    \item \textbf{<Content>} può contenere la risorsa stessa.
+\end{itemize}
 
-
+\noindent Una \textbf{<Response>} contiene:
+\begin{itemize}
+    \item \textbf{<Decision>} specifica il risultato della valutazione della richiesta;
+    \item \textbf{<Obligation>} specifica l'obbligazione che deve essere compiuta dal PEP.
+\end{itemize}
 
 
 

@@ -13,19 +13,6 @@ Ci sono tre modi principali per verificare l'identità di un utente, che possono
     \item Tramite qualcosa che l'utente è.
 \end{itemize}
 
-\paragraph{Sistemi token-based} Si utilizza un token generato da un'app, un dispositivo (OTP), una smart card o un barcode per autenticarsi. 
-I dispositivi OTP solitamente implementano un algoritmo di hashing per generare la OTP, che prende in input un segreto memorizzato sul device/app. Il codice generato ha solitamente una validità limitata (30-60 secondi) e può essere usato in un'unica sessione di autenticazione. L'algoritmo più usato è il Time Based One Time Password Generation Algorithm, che prende in input un clock interno sincronizzato con quello del server di autenticazione per generare la OTP (utilizzo quindi il tempo).
-
-L'altra tecnica token-based usata è quella che prevede l'uso delle smart card (carta con un piccolo processore), dove vengono memorizzati i certificati della chiave pubblica e della chiave privata rilasciati agli utenti. Per poter utilizzare la smartcard per autenticarsi è necessario utilizzare un lettore per collegarla la pc. Il processo di autenticazione segue un protocollo di challenge and response: 
-\begin{itemize}
-    \item Prima di tutto l'utente sblocca la carta con il pin associato;
-    \item Il lettore genera un valore casuale che invia alla smart card;
-    \item La card genera a sua volta un valore casuale e lo combina con quello del lettore. Firma il risultato con la chaive privata;
-    \item Il lettore verifica la validità della firma con la corrispondente chiave pubblica.
-\end{itemize}
-
-\noindent Problemi: posso perdere/mi viene rubato il sistema che mi genera il token, rendendomi impossibile accedere al sistema. 
-
 \paragraph{Autenticazione con sistemi biometrici} Come per le smart card, è necessario uno scanner della caratteristica biometrica che l'utente usa per autenticarsi. 
 Le caratteristiche utilizzabili per autenticarsi devono essere:
 \begin{itemize}
@@ -183,5 +170,53 @@ Il key logger cattura tutte le comunicazioni fatte dalla macchina della vittima.
     \item Educo gli utenti.
 \end{itemize}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{images/7-3.jpg}
+    \caption{Registrazione FIDO.}
+    \label{fig:7-3}
+\end{figure}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{images/7-4.jpg}
+    \caption{Login FIDO.}
+    \label{fig:7-4}
+\end{figure}
+
+\section{Multi-Factor Authentication}
+Gli account che sono stati configurati con MFA richiedono all'utente di fornire un secondo fattore, che è qualcosa a cui solo l'utente può accedere. Generalmente questi fattori sono:
+\begin{itemize}
+    \item Codici inviati tramite SMS;
+    \item Token da connettere fisicamente al dispositivo (anche tramite USB);
+    \item Fattori biometrici;
+    \item App installate su dispositivi fidati (come quelle di Microsoft e Google).
+\end{itemize}
+
+\paragraph{Ricezione delle OTP} I metodi principali per inviare/reiceve OTP sono:
+\begin{itemize}
+    \item SMS based: ogni volta che l'utente accede, riceve un messaggio di testo al numero di telefono registrato, che contiene una password monouso;
+    \item TOTP-based: durante l'abilitazione dell'autenticazione a 2 fattori, all'utente viene chiesto di scansionare un'immagine QR utilizzando una specifica applicazione per smartphone. Tale applicazione genera quindi continuamente la One Time Password per l'utente.
+\end{itemize}
+
+\paragraph{Generazione delle OTP} Esistono più modi per generare le OPT:
+\begin{itemize}
+    \item HMAC-Based One Time Password Algorithm(HOTP): 
+    \begin{enumerate}
+        \item Il server back-end crea una chiave segreta per quel particolare utente;
+        \item Il server condivide quindi la chiave segreta K con l'applicazione telefonica dell'utente;
+        \item L'applicazione inizializza un contatore C;
+        \item L'applicazione incrementa prima il valore del contatore di uno, quindi genera una password monouso utilizzando la chiave segreta e il contatore come segue:
+        \begin{center}
+            HOTP(K, C) = Tronca(HMAC-SHA1(K,C))
+        \end{center}
+        \item Se il valore inviato dall'applicazione telefonica corrisponde a quello generato dal server, il server incrementa il valore del contatore di uno.
+    \end{enumerate}
+    \item Time-based One Time Password: utilizza il tempo al posto del counter, che deve essere derivato in currentUnix time.
+\end{itemize}
+
+\section{Autenticazione FIDO}
+FIDO è un protocollo di autenticazione il cui scopo è eliminare l'uso delle password, sfruttando la tecnologia della crittografia asimmetrica.
+
+Un esempio del processo di registrazione e del processo di login sono riportate nelle immagini \ref{fig:7-3} e \ref{fig:7-4}.
 

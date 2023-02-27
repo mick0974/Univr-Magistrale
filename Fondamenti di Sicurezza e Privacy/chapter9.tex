@@ -142,15 +142,38 @@ Il client invia una richiesta POST con i seguenti parametri al server di autoriz
 \end{itemize}
 
 \section{Device flow}
-Vedere PDF.
+Si utilizza quando si accede a risorse da dispositivi come playstation o smart tv. Piuttosto che effettuare il login "a mano", dovendo inserire user e password nella scomoda interfaccia che verrebbe fornite, viene chiesto all'utente di collegarsi ad un determinato URL e inserire il codice mostrato a schemo per consentire l'accesso all'applicazione/client.
 
+\subsection{Flusso}
+Il client invia una richiesta POST al server di autenticazione contenente:
+\begin{itemize}
+    \item \textbf{response\_type} con il valore "device\_code";
+    \item \textbf{client\_id} con l'ID del client;
+\end{itemize}
 
+\noindent Il server di autorizzazione risponderà con un oggetto JSON contenente le seguenti proprietà:
+\begin{itemize}
+    \item \textbf{verification\_uri} con l'URL che l'utente dovrebbe navigare in un altro device;
+    \item \textbf{user\_code} con il codece che l'utente deve inserire una volta che si è autenticato;
+    \item \textbf{device\_code};
+    \item \textbf{interval}.
+\end{itemize}
 
+\subsection{Flusso (pt.2)}
+Mentre l'utente si autentica, il client cerca di ottenere l'access token inviando richieste POST ogni \textbf{interval} tempo. La richiesta inviata contiene:
+\begin{itemize}
+    \item \textbf{grant\_type} con il valore "device\_code";
+    \item \textbf{user\_id} con l'id del client;
+    \item \textbf{code} con il valore ricevuto in \textbf{debvice\_code};
+\end{itemize}
 
-
-
-
-
+\noindent Una volta che l'utente si è autenticato e ha aturizzato il client, questo riceverà la risposta contente:
+\begin{itemize}
+    \item \textbf{token\_type} con il valore "Bearer";
+    \item \textbf{expires\_in} con un numero intero che rappresenta il TTL del token di accesso;
+    \item \textbf{access\_token} con il token di accesso stesso;
+    \item \textbf{refresh\_token} con un refresh token che può essere utilizzato per acquisire un nuovo token di accesso alla scadenza dell'originale.
+\end{itemize}
 
 
 

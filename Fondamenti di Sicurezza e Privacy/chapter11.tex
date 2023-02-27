@@ -11,14 +11,14 @@ Le organizzazioni devono decidere quanto tempo e denaro spendere proteggere la l
     \item Nella fase cardine, quella di risk assessment, si identificano, analizzano e valutano i rischi;
     \item Nella fase di Risk Treatment l'organizzazione, per ciascun dei rischi individuati, vengono identificate le misure di protezione. In questa fase non bisogna tenere presente solo il rischio però, ma anche le risorse disponibili (economiche, personale, ...). Alla fine del processo esisterà sempre un rischio minimo che non è stato mitigato. L'azienda dovrà quindi decidere se accettare il rischio, per continuare a fornire i suoi servizi, monitorare il rischio in attesa di cambiamenti oppure trasferire il rischio a terzi (assicurazione);
     \item I rischi identificati vanno infine comunicati agli stakeholder del sistema;
-    \item Nella fase di monitor and review le misure di protezione selezionate e implementatevengono monitorate per garantire che forniscano sempre un livello di protezione adeguato rispetto agli attacchi identificati nella fase di risk assessment. Questo può essere fatto con penetration testing o valutando le performance delle misure adottate intervistando gli stakeholders. In base al risultato di questa fase, potrebbe essere necessario ripartire da capo. L'attività di revisione del rischio può anche essere fatta qualora l'azienda decide di introdurre nuove funzionalità/sistemi o raccogliere nuove informazioni. Ad esempio, se l'azienda decide di spostare i dati dei clienti dai server locale a un servizio cloud, è necessario rifare il processo da capo
+    \item Nella fase di monitor and review le misure di protezione selezionate e implementate vengono monitorate per garantire che forniscano sempre un livello di protezione adeguato rispetto agli attacchi identificati nella fase di risk assessment. Questo può essere fatto con penetration testing o valutando le performance delle misure adottate intervistando gli stakeholders. In base al risultato di questa fase, potrebbe essere necessario ripartire da capo. L'attività di revisione del rischio può anche essere fatta qualora l'azienda decide di introdurre nuove funzionalità/sistemi o raccogliere nuove informazioni. Ad esempio, se l'azienda decide di spostare i dati dei clienti dai server locale a un servizio cloud, è necessario rifare il processo da capo
 \end{itemize}
 
 \noindent Il processo di risk management è un processo ciclico.
 
 \section{Standard NIST}
 
-Il NIST fornisce uno standard per le fase di risk management viste. Il vantaggio di usare gli standard del NIST è che sono open-surce.
+Il NIST fornisce uno standard per le fasi di risk management viste. Il vantaggio di usare gli standard del NIST è che sono open-surce.
 
 \noindent Tra gli standard che fornisce troviamo:
 \begin{itemize}
@@ -55,14 +55,18 @@ Vediamo uno scenario generico: il rischio si materializza quando abbiamo un thre
 
 \paragraph{OWASP Risk Rating Methodology} Fornisce una serie di fattori per stimare la probabilità e l'impatto. La probabilità è stimata sulla base di due serie di fattori:
 \begin{itemize}
-    \item Fattori dell'agente di minaccia;
-    \item Fattori di vulnerabilità.
+    \item Fattori dell'agente di minaccia (capacità dell'attaccante, motivi, opportunità);
+    \item Fattori di vulnerabilità (conoscenza della vulnerabilità tra i threat actor, facilità a scoprire la vulnerabilità, facilità ad exploitare la vulnerabilità).
 \end{itemize}
 \noindent L'impatto è stimato sulla base di:
 \begin{itemize}
-    \item Fattori di impatto tecnico;
-    \item Fattori di impatto sul business.
+    \item Fattori di impatto tecnico (livello di violazione nella confidenzialità, nell'integrità, nella disponibilità);
+    \item Fattori di impatto sul business (danno economico, danno all'immagine).
 \end{itemize}
+\noindent Il rischio è calcolato come:
+\begin{center}
+    rischio = likelihood * impatto
+\end{center}
 
 \section{Risk assessment secondo lo standard NIST}
 
@@ -91,14 +95,15 @@ L'obiettivo di questa fase è definire il contesto per il risk assessment. Si co
 
     \item Si definisce lo scope dell'assessment, ovvero quali parti dei sistemi gestiti dall'organizzazione sono soggetti al risk assessment (target dell'analisi - app sul cloud, determinate informazione e servizi associati);
 
-    \item Si documentano quali sono le assunzioni fatte relative all'analisi. Bisogna recuperare qual è la strategia aziendale rispetto al risk assessment. Questa comprende la risk tolerance (rischio che l'organizzazione è disposta a tollerare sopo che le misure di protezione identificate dal risk assessment sono state implementate) e risk acceptance. Si definiscono anche la metodologia per effettuare il risk assessment e quali sono le categorie di attaccanti, attacchi e vulnerabilità rilevanti per l'organizzazione. Si definiscono infine i valori da usare per quantificare la likelihood di un attacco e dei possibili impatti negativi che possono verificarsi;
+    \item Si documentano quali sono le assunzioni fatte relative all'analisi. Bisogna recuperare qual è la strategia aziendale rispetto al risk assessment. Questa comprende la risk tolerance (rischio che l'organizzazione è disposta a tollerare dopo che le misure di protezione identificate dal risk assessment sono state implementate) e risk acceptance. Si definiscono anche la metodologia per effettuare il risk assessment e quali sono le categorie di attaccanti, attacchi e vulnerabilità rilevanti per l'organizzazione. Si definiscono infine i valori da usare per quantificare la likelihood di un attacco e dei possibili impatti negativi che possono verificarsi;
 
     \item Si definisce il risk model, ovvero i fattori che usiamo per quantificare il rischio (generalmente i modelli usano threat, vulnerability, ...). Si valuta anche l'approccio per valutare il rischio. Esistono tre approcci principali:
     \begin{itemize}
         \item Approccio qualitativo: si esprime la probabilità dell'impatto usando delle etichette come probabilità alta, media, bassa o impatto alto, medio, moderato;
         \item Approccio quantitativo: likelihood e impatto vengono espressi numericamente;
-        \item Approccio ibrido: usa i numeri per quantificare il valore associato a likelihood e impatto e presenta tali risultati poi con delle etichette. SI definisce infine l'approccio di analisi. Questo dipende dalla metodologia che si utilizza (alcune metodologie di risk assessment partono dall'asset e risalgono a tutti i possibili attacchi o che partano dall'individuare i possibili attaccanti e legano le possibili categorie trovate agli asset del sistema).
+        \item Approccio ibrido: usa i numeri per quantificare il valore associato a likelihood e impatto e presenta tali risultati poi con delle etichette. 
     \end{itemize}
+    \item Si definisce infine l'approccio di analisi. Questo dipende dalla metodologia che si utilizza (alcune metodologie di risk assessment partono dall'asset e risalgono a tutti i possibili attacchi o che partano dall'individuare i possibili attaccanti e legano le possibili categorie trovate agli asset del sistema).
 \end{enumerate}
 
 \begin{figure}
