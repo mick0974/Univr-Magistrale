@@ -1,0 +1,36 @@
+\setchapterpreamble[u]{\margintoc}
+\chapter{Reti anonime}
+\labch{chapter10}
+
+Privacy sulle reti pubbliche:
+\begin{itemize}
+    \item Internet è disegnato come una rete pubblica: le macchine potrebbero vedere il traffico delle altre e i router vedono tutto il traffico che passa loro attraverso;
+	\item Le info dul routing sono pubbliche: è facile capire chi sta comunicando con chi osservando l'header IP;
+	\item La crittografia non nasconde le identità: la crittografia nasconde il payload, ma non il routing. Anche IPsec (tunnel mode/ESP) rivela gli indirizzi IP al gateway IPsec.
+\end{itemize}
+
+Applicazioni dell'anonimità:
+\begin{itemize}
+    \item Privacy;
+	\item Email irrintracciabili;
+	\item  Comunicazioni segrete su reti pubbliche;
+	\item Denaro digitale (acquisti online non linkabili all'identità del compratore);
+	\item Voto elettronico anonimo;
+	\item Pubblicazioni contro la censura.
+\end{itemize}
+	
+Cos'è l'anonimità:
+\begin{itemize}
+    \item Stato in cui non si è identificabile all'interno di un insieme di soggetti (nascono le mie attività tra altri simile; non posso essere anonimo da solo);
+	\item Incollegabilità tra azione e identità;
+	\item Inosservabilità (l'osservatore non riesce a dire se l'azione è stata fatta o no, difficile da ottenere).
+\end{itemize}
+
+Attacchi all'anonimità:
+\begin{itemize}
+    \item Analisi passiva del traffico: cerco di capire dal traffico della rete chi parla con chi;
+	\item Analisi del traffico attiva: inietto pacchetti;
+	\item Compromissione dei nodi della rete (router): non è ovvio capire quale nodo è stata compromesso.
+\end{itemize}
+
+L'anonimato è il migliore quando il servizio di anonimizzazione attira molti utenti (TOR).
